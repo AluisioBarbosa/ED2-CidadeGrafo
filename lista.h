@@ -5,7 +5,6 @@
 
 // Structs opacas 
 typedef struct lista Lista;
-typedef struct no No;
 
 
 /**
