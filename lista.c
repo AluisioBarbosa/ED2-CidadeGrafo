@@ -93,34 +93,6 @@ void inserirFim(Lista* l, void* dados) {
     l->tamanho++;
 }
 
-void inserirOrdenado(Lista* l, void* dados, int (*comparar)(void*, void*)) {
-    if (l == NULL){
-        printf("Lista nao existe e/ou nao foi alocada corretamente\n");
-        return;
-    }
-    No* novo = (No*)malloc(sizeof(No));
-    if (novo == NULL){
-        printf("Falha na alocacao de memoria para criar um no novo na insercao ordenada\n");
-        exit(1);
-    }
-    novo->dados = dados;
-    No* atual = l->inicio;
-    No* anterior = NULL;
-    while(atual != NULL && comparar(atual->dados, dados) < 0){
-        anterior = atual;
-        atual = atual->prox;
-    }
-    if(anterior == NULL){
-        novo->prox = l->inicio;
-        l->inicio = novo;
-        if(l->fim == NULL) l->fim = novo;
-    } else {
-        novo->prox = anterior->prox;
-        anterior->prox = novo;
-        if(novo->prox == NULL) l->fim = novo;
-    }
-    l->tamanho++;
-}
 
 void* removerInicio(Lista* l) {
     if (l == NULL || listaVazia(l)){

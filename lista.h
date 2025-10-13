@@ -50,17 +50,6 @@ void inserirInicio(Lista* l, void* dados);
  */
 void inserirFim(Lista* l, void* dados);
 
-/**
- * @brief Insere um novo elemento de forma ordenada, mantendo a ordem crescente da lista.
- * @note Esta função requer uma função de comparação de 3 vias (menor, igual, maior).
- * @param l Ponteiro para a lista.
- * @param dados Ponteiro 'void*' para os dados a serem inseridos.
- * @param comparar Ponteiro para a função de comparação. A função deve retornar:
- * - um valor < 0 se o primeiro dado for menor que o segundo.
- * - 0 se os dados forem iguais.
- * - um valor > 0 se o primeiro dado for maior que o segundo.
- */
-void inserirOrdenado(Lista* l, void* dados, int (*comparar)(void* dados1, void* dados2));
 
 // --- Funções de Remoção ---
 

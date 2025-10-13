@@ -2,7 +2,8 @@
 
 
 typedef struct streapNode{
-    int coordenada[2];
+    double coordenadaX;
+    double coordenadaY;
     double epsilon;
 }StreapNode;
 

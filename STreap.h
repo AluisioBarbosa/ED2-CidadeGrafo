@@ -26,12 +26,6 @@ validos. Qualquer remocao posterior faz com que nos (Node) retornados previament
 invalidos. 
 */
 
-typedef enum{
-  X = 0,
-  Y = 1
-}Coord;
-
-
 
 
 typedef struct streap STreap; 
