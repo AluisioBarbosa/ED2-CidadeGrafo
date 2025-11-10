@@ -3,10 +3,12 @@
 #include "programa.h"
 #include "argumentos.h"
 #include "log.h"
+#include "lista.h"
 
 struct programa{
     DadosArgumentos* args;
-
+    Lista* objetosGeo;
+    Lista* objetosQry;
     
 };
 
@@ -20,6 +22,8 @@ Programa* criarPrograma(int argc, char* argv[]){
     }
 
     programa->args = processarArgumentos(argc, argv);
+    programa->objetosGeo = criaLista();
+    programa->objetosQry = criaLista();
 
     initlog(getDIRsaida(programa->args));
     return programa;

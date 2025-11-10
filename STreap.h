@@ -41,13 +41,13 @@ typedef void (*FvisitaNo) (Info i, double x, double y, double mbbX1, double mbbY
  * sucessivas invocacoes a esta funcao.
  */
 
-STreap createSTrp(double epsilon);
+STreap* createSTrp(double epsilon);
 /*
   Retorna uma �arvore vazia, com precisao epsilon.
   Retorna NULL caso nao tenha conseguido criar a arvore.
  */
 
-Node insertSTrp(STreap t, double x, double y,  Info info);
+Node* insertSTrp(STreap t, double x, double y,  Info info);
 /*
   Insere a informacao info na arvore t, associada a coordenada (x,y).
   Retorna o no� onde foi inserida a informacao; NULL, caso ja exista informacao com a mesma chave (veja acima)
@@ -62,13 +62,13 @@ void getNodeRegiaoSTrp(STreap t, double x, double y, double w, double h, Lista r
  */
 
 
-Info getInfoSTrp(STreap t, Node n);
+Info* getInfoSTrp(STreap t, Node n);
 /*
   Retorna a informacao associada ao no� n, sua ancora (xa,ya) e o retangulo envolvente (mbbX1,mbbY1) -- (mbbX2,mbbY2). 
   Este no� deve ser um no� valido (veja acima).
  */
 
-Node getNodeSTrp(STreap t, double xa, double ya);
+Node* getNodeSTrp(STreap t, double xa, double ya);
 /*
   Retorna o no da arvore associado a ancora (xa,ya) e o retangulo envolvente; NULL, se tal ancora nao existir.
  */
@@ -79,13 +79,13 @@ void updateInfoSTrp(STreap t, Node n, Info i);
   A ancora  deste no nao sao alterado.
  */
 
-Info deleteNodeSTrp(STreap t, Node n);
+Info* deleteNodeSTrp(STreap t, Node n);
 /*
   Remove o no' n da arvore, portanto, o no' n  deve ser considerado invalido.
   Retorna a informacao que estava associada a tal no'.
  */
 
-Info removeSTrp(STreap t,double xa, double ya);
+Info* removeSTrp(STreap t,double xa, double ya);
 /*
   Remove o no' da arvore cuja chave e� a coordenada (xa,ya). 
   Qualquer no' da arvore retornado por operacoes anteriores
