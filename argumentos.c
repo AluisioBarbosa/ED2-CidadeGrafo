@@ -36,7 +36,7 @@ static char* montarCaminho(char* diretorio, char* arquivo){
 
     char* caminho = malloc(tamCaminho);
     
-    if(caminho){
+    if(caminho == NULL){
         printf("Erro na hora de alocacao do caminho para montar o caminho do diretorio\n");
         exit(1);
     }
@@ -107,6 +107,10 @@ void destruirArgumentos(DadosArgumentos* args){
     free(args->nomeQryFILE);
     free(args->caminhoQRY);
     free(args->caminhoGEO);
+}
+
+char* getDIRentrada(DadosArgumentos* args){
+    return args->DIR_ENTRADA;
 }
 
 char* getCaminhoGeo(DadosArgumentos* args){
