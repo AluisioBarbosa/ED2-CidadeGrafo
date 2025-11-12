@@ -1,0 +1,8 @@
+blq blq-tot-centro-ns ns 3275.00 1178.33 4912.50 1767.50
+blq blq-tot-centro-sn sn 3275.00 1178.33 4912.50 1767.50
+blq blq-tot-centro-lo lo 3275.00 1178.33 4912.50 1767.50
+blq blq-tot-centro-ol ol 3275.00 1178.33 4912.50 1767.50
+pnt B40-7.12 #800080 #ff6600
+pnt B44-8.4 #ff6600 #800080
+@o? B40-7.12 L 35
+p? B44-8.4 L 73 #660080 #d400aa

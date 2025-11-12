@@ -1,0 +1,8 @@
+blq blq-ilha-centro-ns ns 3436.25 1178.33 3113.75 215.00
+blq blq-ilha-centro-sn sn 3436.25 2141.67 3113.75 215.00
+blq blq-ilha-centro-lo lo 3275.00 1339.58 215.00 1017.08
+blq blq-ilha-centro-ol ol 6335.00 2195.42 215.00 1017.08
+pnt B40-7.12 #800080 #ff6600
+pnt B44-8.4 #ff6600 #800080
+@o? B40-7.12 L 35
+p? B44-8.4 L 73 #660080 #d400aa

@@ -1,0 +1,12 @@
+blq blq-ilha-top-ns ns 3436.25 0.00 1476.25 215.00
+blq blq-ilha-top-sn sn 3436.25 1552.50 1476.25 215.00
+blq blq-ilha-top-lo lo 3275.00 161.25 215.00 1606.25
+blq blq-ilha-top-ol ol 4697.50 1606.25 215.00 1606.25
+blq blq-ilha-bot-ns ns 6645.75 1060.50 1476.25 215.00
+blq blq-ilha-bot-sn sn 6645.75 2613.00 1476.25 215.00
+blq blq-ilha-bot-lo lo 6484.50 1221.75 215.00 1606.25
+blq blq-ilha-bot-ol ol 7907.00 2666.75 215.00 1606.25
+pnt B40-7.12 #800080 #ff6600
+pnt B44-8.4 #ff6600 #800080
+@o? B40-7.12 L 35
+p? B44-8.4 L 73 #660080 #d400aa

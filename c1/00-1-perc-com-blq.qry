@@ -1,0 +1,8 @@
+blq blq-tot-centro-ns ns 520.00 386.67 780.00 580.00
+blq blq-tot-centro-sn sn 520.00 386.67 780.00 580.00
+blq blq-tot-centro-lo lo 520.00 386.67 780.00 580.00
+blq blq-tot-centro-ol ol 520.00 386.67 780.00 580.00
+pnt b09.2 #800080 #ff6600
+pnt b08.10 #ff6600 #800080
+@o? b09.2 N 4
+p? b08.10 O 24 #660080 #d400aa

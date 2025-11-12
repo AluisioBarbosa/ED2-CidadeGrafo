@@ -1,0 +1,32 @@
+blq blq-total-ilha-centro-ns-ns ns 3436.25 1178.33 3113.75 215.00
+blq blq-total-ilha-centro-ns-sn sn 3436.25 1178.33 3113.75 215.00
+blq blq-total-ilha-centro-ns-lo lo 3436.25 1178.33 3113.75 215.00
+blq blq-total-ilha-centro-ns-ol ol 3436.25 1178.33 3113.75 215.00
+blq blq-total-ilha-centro-sn-ns ns 3436.25 2141.67 3113.75 215.00
+blq blq-total-ilha-centro-sn-sn sn 3436.25 2141.67 3113.75 215.00
+blq blq-total-ilha-centro-sn-lo lo 3436.25 2141.67 3113.75 215.00
+blq blq-total-ilha-centro-sn-ol ol 3436.25 2141.67 3113.75 215.00
+blq blq-total-ilha-centro-lo-ns ns 3275.00 1339.58 215.00 1017.08
+blq blq-total-ilha-centro-lo-sn sn 3275.00 1339.58 215.00 1017.08
+blq blq-total-ilha-centro-lo-lo lo 3275.00 1339.58 215.00 1017.08
+blq blq-total-ilha-centro-lo-ol ol 3275.00 1339.58 215.00 1017.08
+blq blq-total-ilha-centro-ol-ns ns 6335.00 2195.42 215.00 1017.08
+blq blq-total-ilha-centro-ol-sn sn 6335.00 2195.42 215.00 1017.08
+blq blq-total-ilha-centro-ol-lo lo 6335.00 2195.42 215.00 1017.08
+blq blq-total-ilha-centro-ol-ol ol 6335.00 2195.42 215.00 1017.08
+pnt B40-7.12 #800080 #ff6600
+pnt B44-8.4 #ff6600 #800080
+@o? B40-7.12 L 35
+p? B44-8.4 L 73 #660080 #d400aa
+rbl blq-total-ilha-centro-ns-ns
+rbl blq-total-ilha-centro-ns-lo
+rbl blq-total-ilha-centro-sn-ns
+rbl blq-total-ilha-centro-sn-lo
+rbl blq-total-ilha-centro-lo-ns
+rbl blq-total-ilha-centro-lo-lo
+rbl blq-total-ilha-centro-ol-ns
+rbl blq-total-ilha-centro-ol-lo
+pnt B40-7.12 #800080 #ff6600
+pnt B44-8.4 #ff6600 #800080
+@o? B40-7.12 L 35
+p? B44-8.4 L 73 #660080 #d400aa
