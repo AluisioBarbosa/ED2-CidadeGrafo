@@ -7,9 +7,9 @@
 
 struct programa{
     DadosArgumentos* args;
-    Lista* objetosGeo;
-    Lista* objetosQry;
-    
+
+
+    FILE* log;
 };
 
 
@@ -22,10 +22,10 @@ Programa* criarPrograma(int argc, char* argv[]){
     }
 
     programa->args = processarArgumentos(argc, argv);
-    programa->objetosGeo = criaLista();
-    programa->objetosQry = criaLista();
 
-    initlog(getDIRsaida(programa->args));
+    printArgumentos(programa->args);
+
+    initLog(getDIRsaida(programa->args));
     return programa;
 }
 

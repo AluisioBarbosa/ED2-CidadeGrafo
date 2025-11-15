@@ -7,3 +7,4 @@ DadosArgumentos* processarArgumentos(int, char*[]);
 char* getCaminhoGeo(DadosArgumentos*);
 char* getCaminhoQry(DadosArgumentos*);
 char* getDIRsaida(DadosArgumentos*);
+void printArgumentos(DadosArgumentos*);

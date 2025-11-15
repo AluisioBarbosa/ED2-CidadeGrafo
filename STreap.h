@@ -116,4 +116,4 @@ void percursoProfundidade(STreap t, FvisitaNo fVisita, void *aux);
  */
 void killSTrp(STreap t);
 
-#endif
+#endif;

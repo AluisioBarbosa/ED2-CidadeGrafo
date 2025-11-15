@@ -31,11 +31,15 @@ DadosArgumentos* criarEstruturaArgumentos(){
 }
 
 static char* montarCaminho(char* diretorio, char* arquivo){
+    // se começar com ./ ignora o ./ para montar o caminho
+    if(strncmp(arquivo, "./", 2) == 0){
+        arquivo += 2;
+    }
+
     size_t tamCaminho = strlen(diretorio) + strlen(arquivo) + 2;
     size_t tamDiretorio = strlen(diretorio);
 
     char* caminho = malloc(tamCaminho);
-    
     if(caminho == NULL){
         printf("Erro na hora de alocacao do caminho para montar o caminho do diretorio\n");
         exit(1);
@@ -55,21 +59,21 @@ static char* montarCaminho(char* diretorio, char* arquivo){
 
 DadosArgumentos* processarArgumentos(int argc, char* argv[]){
     DadosArgumentos* args = criarEstruturaArgumentos();
-    for(int i = 1; i < argc; i + 2){
-        if(strcmp(argv[i], "-e") == true){
+    for(int i = 1; i < argc; i += 2){
+        if(strcmp(argv[i], "-e") == 0){
             args->DIR_ENTRADA = strdup(argv[i + 1]);
         }
-        else if(strcmp(argv[i], "-f") == true){
+        else if(strcmp(argv[i], "-f") == 0){
             args->nomeGeoFILE = strdup(argv[i + 1]);
         }
-        else if(strcmp(argv[i], "-q") == true){
+        else if(strcmp(argv[i], "-q") == 0){
             args->nomeQryFILE = strdup(argv[i + 1]);
         }
-        else if(strcmp(argv[i], "-o") == true){
+        else if(strcmp(argv[i], "-o") == 0){
             args->DIR_SAIDA = strdup(argv[i + 1]);
         }
         else{
-            printf("Flag de entrada %c desconhecida\n", argv[i]);
+            printf("Flag de entrada %s desconhecida\n", argv[i]);
         }
     }
 
@@ -81,7 +85,7 @@ DadosArgumentos* processarArgumentos(int argc, char* argv[]){
 
     // se nao for informado diretorio de entrada e/ou saida, usa o corrente
     if(args->DIR_ENTRADA == NULL){
-        args->DIR_ENTRADA = strdup(".");
+        args->DIR_ENTRADA = strdup("./");
     }
 
     if(args->DIR_SAIDA == NULL){
@@ -96,13 +100,8 @@ DadosArgumentos* processarArgumentos(int argc, char* argv[]){
 
 
 void destruirArgumentos(DadosArgumentos* args){
-    if(args->DIR_ENTRADA != NULL){
-        free(args->DIR_ENTRADA);
-    }
-    if(args->DIR_SAIDA != NULL){
-        free(args->DIR_SAIDA);
-    }
-
+    free(args->DIR_ENTRADA);
+    free(args->DIR_SAIDA);
     free(args->nomeGeoFILE);
     free(args->nomeQryFILE);
     free(args->caminhoQRY);
@@ -121,4 +120,16 @@ char* getCaminhoQry(DadosArgumentos* args){
 }
 char* getDIRsaida(DadosArgumentos* args){
     return args->DIR_SAIDA;
+}
+
+// Debugar
+
+void printArgumentos(DadosArgumentos* args){
+    printf("Diretorio de entrada: %s\n", args->DIR_ENTRADA);
+    printf("Nome do arquivo .geo: %s\n", args->nomeGeoFILE);
+    printf("Nome do arquivo .qry: %s\n", args->nomeQryFILE);
+    printf("Diretorio de saida: %s\n", args->DIR_SAIDA);
+    printf("Caminho completo do .geo: %s\n", args->caminhoGEO);
+    printf("Caminho completo do .qry: %s\n", args->caminhoQRY);
+    free(args);
 }
