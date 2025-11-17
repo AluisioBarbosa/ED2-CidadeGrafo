@@ -4,12 +4,18 @@
 #include "argumentos.h"
 #include "log.h"
 #include "lista.h"
+#include "STreap.h"
+#include "digraph.h"
+#include "hashTable.h"
 
 struct programa{
     DadosArgumentos* args;
-
-
-    FILE* log;
+    STreap* quadras;
+    Graph* vias;
+    
+    HashTable* idQuadras;
+    HashTable* idVertices;
+    HashTable* idArestas;
 };
 
 
@@ -30,7 +36,7 @@ Programa* criarPrograma(int argc, char* argv[]){
 }
 
 void run(Programa* programa){
-
+    printArgumentos(programa->args);
 
 
 
