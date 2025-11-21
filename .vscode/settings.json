@@ -3,5 +3,6 @@
         "stdio.h": "c",
         "argumentos.h": "c",
         "programa.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

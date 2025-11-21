@@ -23,7 +23,7 @@ A documentacao deste modulo deve ser melhorada.
 typedef struct graph Graph;
 typedef int Node;
 typedef struct edge Edge;
-typedef struct info Info;
+typedef void *Info;
 
 /*
   Invocado quando uma aresta � "descoberta"/"percorrida"/"classificada". 

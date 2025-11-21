@@ -5,10 +5,6 @@ typedef struct BoundingBox{
     double x1, x2, y1, y2;
 } BoundingBox;
 
-struct info{
-    void *dado;
-};
-
 typedef struct streapNode{
     double coordenadaX;
     double coordenadaY;
