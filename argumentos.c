@@ -12,6 +12,7 @@ struct dadosArgumentos{
 
     char* caminhoQRY;
     char* caminhoGEO;
+    char* caminhoVIA;
 };
 
 DadosArgumentos* criarEstruturaArgumentos(){
@@ -27,6 +28,7 @@ DadosArgumentos* criarEstruturaArgumentos(){
     args->DIR_SAIDA = NULL;
     args->caminhoQRY = NULL;
     args->caminhoGEO = NULL;
+    args->caminhoVIA = NULL;
     return args;
 }
 
@@ -55,6 +57,35 @@ static char* montarCaminho(char* diretorio, char* arquivo){
     return caminho;
 }
 
+static char* gerarCaminhoVia(char* diretorio, char* nomeGeo) {
+    if (nomeGeo == NULL) {
+        return NULL;
+    }
+
+    char* ponto = strrchr(nomeGeo, '.');
+    size_t tamanhoBase;
+
+    if (ponto != NULL) {
+        tamanhoBase = ponto - nomeGeo;
+    } else {
+        tamanhoBase = strlen(nomeGeo); 
+    }
+
+    char* nomeViaTemp = (char*) malloc(tamanhoBase + 7);
+    if (nomeViaTemp == NULL) {
+        printf("Erro critico: Falha de alocacao de memoria para nome via\n");
+        exit(1);
+    }
+
+    strncpy(nomeViaTemp, nomeGeo, tamanhoBase);
+    nomeViaTemp[tamanhoBase] = '\0';
+    strcat(nomeViaTemp, "-v.via");
+
+    char* caminhoFinal = montarCaminho(diretorio, nomeViaTemp);
+    free(nomeViaTemp);
+
+    return caminhoFinal;
+}
 
 
 DadosArgumentos* processarArgumentos(int argc, char* argv[]){
@@ -94,6 +125,7 @@ DadosArgumentos* processarArgumentos(int argc, char* argv[]){
 
     args->caminhoGEO = montarCaminho(args->DIR_ENTRADA, args->nomeGeoFILE);
     args->caminhoQRY = montarCaminho(args->DIR_ENTRADA, args->nomeQryFILE);
+    args->caminhoVIA = gerarCaminhoVia(args->DIR_ENTRADA, args->nomeGeoFILE);
 
     return args;
 }
@@ -106,6 +138,8 @@ void destruirArgumentos(DadosArgumentos* args){
     free(args->nomeQryFILE);
     free(args->caminhoQRY);
     free(args->caminhoGEO);
+    free(args->caminhoVIA);
+    free(args);
 }
 
 char* getDIRentrada(DadosArgumentos* args){
@@ -121,6 +155,9 @@ char* getCaminhoQry(DadosArgumentos* args){
 char* getDIRsaida(DadosArgumentos* args){
     return args->DIR_SAIDA;
 }
+char* getCaminhoVia(DadosArgumentos* args){
+    return args->caminhoVIA;
+}
 
 // Debugar
 
@@ -131,5 +168,5 @@ void printArgumentos(DadosArgumentos* args){
     printf("Diretorio de saida: %s\n", args->DIR_SAIDA);
     printf("Caminho completo do .geo: %s\n", args->caminhoGEO);
     printf("Caminho completo do .qry: %s\n", args->caminhoQRY);
-    free(args);
+    printf("Caminho completo do .via: %s\n", args->caminhoVIA);
 }

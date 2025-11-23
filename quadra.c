@@ -34,7 +34,6 @@ Quadra* quadra_cria(char* cep, double x, double y, double largura, double altura
     return q;
 }
 
-// --- Getters ---
 
 char* quadra_get_cep(Quadra* q) {
     return q->cep;
@@ -68,7 +67,6 @@ double quadra_get_espessura(Quadra* q) {
     return q->espessuraBorda;
 }
 
-// --- Setters ---
 
 void quadra_set_cores(Quadra* q, char* corPreenchimento, char* corBorda, double espessura) {
     if (q == NULL){
@@ -79,7 +77,6 @@ void quadra_set_cores(Quadra* q, char* corPreenchimento, char* corBorda, double 
     q->espessuraBorda = espessura;
 }
 
-// --- Destruição ---
 
 void quadra_destroi(Quadra* q) {
     if (q != NULL) {

@@ -39,20 +39,14 @@ void processarGeo(char* caminho, STreap* arvoreQuadras, HashTable* idQuadras){
         if (strcmp(comando, "c") == 0) {
             fscanf(f, "%s %s", currentFill, currentStroke);
         }
-        
         else if (strcmp(comando, "cq") == 0) {
             fscanf(f, "%s %s %s", tempSw, currentFill, currentStroke);
             currentSw = atof(tempSw); 
         }
-        
-
         else if (strcmp(comando, "q") == 0) {
             fscanf(f, "%s %lf %lf %lf %lf", cep, &x, &y, &w, &h);
-
             Quadra* q = quadra_cria(cep, x, y, w, h, currentFill, currentStroke, currentSw);
-
             insertSTrp(arvoreQuadras, x, y, (void*)q);
-
             inserirHashTable(idQuadras, cep, (void*)q);
         }
     }

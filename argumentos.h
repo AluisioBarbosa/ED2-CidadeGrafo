@@ -6,5 +6,6 @@ void destruirArgumentos(DadosArgumentos*);
 DadosArgumentos* processarArgumentos(int, char*[]);
 char* getCaminhoGeo(DadosArgumentos*);
 char* getCaminhoQry(DadosArgumentos*);
+char* getCaminhoVia(DadosArgumentos*);
 char* getDIRsaida(DadosArgumentos*);
 void printArgumentos(DadosArgumentos*);

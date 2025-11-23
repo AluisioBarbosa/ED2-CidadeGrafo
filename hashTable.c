@@ -43,7 +43,6 @@ HashTable* criarHashTable(int size){
 }
 
 
-// função de hash que os veteranos recomendaram utilizar
 static unsigned long int hashFunction(char* chave, int size){
     unsigned long int hash = 5381;
     int c;
@@ -56,68 +55,57 @@ void inserirHashTable(HashTable* ht, char* chave, void* info) {
     unsigned long int idx = hashFunction(chave, ht->size);
     Lista* listaDoBalde = ht->baldes[idx];
 
-    // 1. Tenta buscar se a chave já existe usando sua função genérica
-    // Passamos a função 'comparaChaves' e a string 'chave'
+
     HashNode* nodeExistente = (HashNode*) buscarElemento(listaDoBalde, chave, comparaChaves);
 
     if (nodeExistente != NULL) {
-        // Atualiza o valor se já existir
         nodeExistente->info = info;
     } else {
-        // Cria um novo HashNode
         HashNode* novoNode = (HashNode*)malloc(sizeof(HashNode));
         if (novoNode == NULL) {
             printf("Erro ao alocar no da hash\n");
             exit(1);
         }
         
-        novoNode->chave = strdup(chave); // Copia a string (IMPORTANTE)
+        novoNode->chave = strdup(chave); 
         novoNode->info = info;
 
-        // Insere na lista (no fim ou no início, tanto faz para hash)
         inserirFim(listaDoBalde, novoNode);
     }
 }
 
-// --- Busca ---
 void* buscarHashTable(HashTable* ht, char* chave) {
     unsigned long int idx = hashFunction(chave, ht->size);
     Lista* listaDoBalde = ht->baldes[idx];
 
-    // Usa a sua função genérica buscarElemento
     HashNode* node = (HashNode*) buscarElemento(listaDoBalde, chave, comparaChaves);
 
     if (node != NULL) {
-        return node->info; // Retorna o dado guardado
+        return node->info; 
     }
     
-    return NULL; // Não achou
+    return NULL; 
 }
 
-// --- Remoção ---
 void* removerHashTable(HashTable* ht, char* chave) {
     unsigned long int idx = hashFunction(chave, ht->size);
     Lista* listaDoBalde = ht->baldes[idx];
 
-    // Usa a sua função genérica removerElemento.
-    // Ela retorna o ponteiro para o DADO (no caso, o HashNode*) e o remove da lista.
+
     HashNode* nodeRemovido = (HashNode*) removerElemento(listaDoBalde, chave, comparaChaves);
 
     if (nodeRemovido != NULL) {
         void* infoRetorno = nodeRemovido->info;
         
-        // Precisamos liberar a memória que nós alocamos para o HashNode
-        // O nó da lista já foi liberado pela sua função removerElemento
-        free(nodeRemovido->chave); // Libera a string duplicada
-        free(nodeRemovido);        // Libera a struct HashNode
+        free(nodeRemovido->chave);
+        free(nodeRemovido);        
         
-        return infoRetorno; // Retorna o dado útil para o usuário
+        return infoRetorno; 
     }
 
-    return NULL; // Não encontrou
+    return NULL;
 }
 
-// --- Destruição ---
 void destruirHashTable(HashTable* ht) {
     if (ht == NULL){
         return;
@@ -133,7 +121,6 @@ void destruirHashTable(HashTable* ht) {
             }
         }
         
-        // Agora que a lista está vazia (mas alocada), liberamos a estrutura da lista
         liberaLista(l);
     }
 

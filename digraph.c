@@ -45,18 +45,15 @@ static void* intToPtr(int n) {
     return (void*) val;
 }
 
-// Converte void* para int
 static int ptrToInt(void* p) {
     size_t val = (size_t) p;
     return (int) val;
 }
 
-// MUDANÇA AQUI: Comparação recebe um int* diretamente como contexto, sem struct auxiliar
 static bool comparaArestaPorDestino(void* item, void* ctx) {
-    struct edge* e = (struct edge*) item;
+    Edge* e = (Edge*) item;
     int* destinoDesejado = (int*) ctx;
     
-    // Compara o destino da aresta com o inteiro passado no contexto
     if (e->to == *destinoDesejado) {
         return true;
     } else {
@@ -64,14 +61,13 @@ static bool comparaArestaPorDestino(void* item, void* ctx) {
     }
 }
 
-// --- CRIAÇÃO E DESTRUIÇÃO ---
 
 Graph* createGraph(int nVert) {
     if (nVert <= 0) {
         return NULL;
     }
 
-    struct graph* g = (struct graph*) malloc(sizeof(struct graph));
+    Graph* g = (Graph*) malloc(sizeof(Graph));
     if (g == NULL) {
         return NULL;
     }
@@ -95,17 +91,16 @@ Graph* createGraph(int nVert) {
         g->listaAdj[i].vertice.info = NULL;
         g->listaAdj[i].listaEdges = NULL;
         
-        // MUDANÇA: Inicializa com o ENUM
         g->listaAdj[i].cor = BRANCO;
         g->listaAdj[i].td = 0.0;
         g->listaAdj[i].tf = 0.0;
     }
 
-    return (Graph*) g;
+    return g;
 }
 
 void killDG(Graph *g) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return;
     }
@@ -118,7 +113,7 @@ void killDG(Graph *g) {
             
             if (gr->listaAdj[i].listaEdges != NULL) {
                 while (!listaVazia(gr->listaAdj[i].listaEdges)) {
-                    struct edge* e = (struct edge*) removerInicio(gr->listaAdj[i].listaEdges);
+                    Edge* e = (Edge*) removerInicio(gr->listaAdj[i].listaEdges);
                     free(e);
                 }
                 liberaLista(gr->listaAdj[i].listaEdges);
@@ -126,15 +121,13 @@ void killDG(Graph *g) {
         }
     }
 
-    // destruirHashTable(gr->tabela); // Se houver função
     free(gr->listaAdj);
     free(gr);
 }
 
-// --- GETTERS GERAIS ---
 
 int getMaxNodes(Graph *g) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr != NULL) {
         return gr->maxVert;
     }
@@ -142,17 +135,14 @@ int getMaxNodes(Graph *g) {
 }
 
 int getTotalNodes(Graph g) {
-    // Acesso direto assumindo struct graph conhecida aqui
-    struct graph* gr = (struct graph*) &g; 
-    // Nota: Dependendo de como 'Graph' é passado (valor ou ponteiro), isso pode variar.
-    // Assumindo a lógica anterior de acesso direto à struct.
+    Graph* gr = (Graph*) &g; 
+
     return g.nVert; 
 }
 
-// --- VÉRTICES ---
 
 Node addNode(Graph *g, char *nome, InfoGrafo *info) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL || nome == NULL) {
         return -1;
     }
@@ -188,7 +178,7 @@ Node addNode(Graph *g, char *nome, InfoGrafo *info) {
 }
 
 Node getNode(Graph *g, char *nome) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL || nome == NULL) {
         return -1;
     }
@@ -201,7 +191,7 @@ Node getNode(Graph *g, char *nome) {
 }
 
 InfoGrafo* getNodeInfo(Graph *g, Node *node) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL || node == NULL) {
         return NULL;
     }
@@ -218,7 +208,7 @@ InfoGrafo* getNodeInfo(Graph *g, Node *node) {
 }
 
 char *getNodeName(Graph *g, Node node) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return NULL;
     }
@@ -234,7 +224,7 @@ char *getNodeName(Graph *g, Node node) {
 }
 
 void setNodeInfo(Graph *g, Node node, InfoGrafo* info) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return;
     }
@@ -248,10 +238,9 @@ void setNodeInfo(Graph *g, Node node, InfoGrafo* info) {
     }
 }
 
-// --- ARESTAS ---
 
 Edge* addEdge(Graph *g, Node from, Node to, InfoGrafo* info) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return NULL;
     }
@@ -267,7 +256,7 @@ Edge* addEdge(Graph *g, Node from, Node to, InfoGrafo* info) {
         return NULL;
     }
 
-    struct edge* e = (struct edge*) malloc(sizeof(struct edge));
+    Edge* e = (Edge*) malloc(sizeof(Edge));
     if (e == NULL) {
         return NULL;
     }
@@ -283,7 +272,7 @@ Edge* addEdge(Graph *g, Node from, Node to, InfoGrafo* info) {
 }
 
 Edge* getEdge(Graph *g, Node from, Node to) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return NULL;
     }
@@ -291,15 +280,13 @@ Edge* getEdge(Graph *g, Node from, Node to) {
         return NULL;
     }
 
-    // MUDANÇA: Passa o endereço da variável 'to' diretamente
     int target = to;
     
-    // buscarElemento espera (Lista, void* ctx, bool (*cmp)(void*, void*))
     return (Edge*) buscarElemento(gr->listaAdj[from].listaEdges, &target, comparaArestaPorDestino);
 }
 
 Node getFromNode(Graph *g, Edge *e) {
-    struct edge* ed = (struct edge*) e;
+    Edge* ed = (Edge*) e;
     if (ed != NULL) {
         return ed->from;
     }
@@ -307,7 +294,7 @@ Node getFromNode(Graph *g, Edge *e) {
 }
 
 Node getToNode(Graph *g, Edge *e) {
-    struct edge* ed = (struct edge*) e;
+    Edge* ed = (Edge*) e;
     if (ed != NULL) {
         return ed->to;
     }
@@ -315,7 +302,7 @@ Node getToNode(Graph *g, Edge *e) {
 }
 
 InfoGrafo* getEdgeInfo(Graph *g, Edge *e) {
-    struct edge* ed = (struct edge*) e;
+    Edge* ed = (Edge*) e;
     if (ed != NULL) {
         return (InfoGrafo*) ed->info;
     }
@@ -323,15 +310,15 @@ InfoGrafo* getEdgeInfo(Graph *g, Edge *e) {
 }
 
 void setEdgeInfo(Graph *g, Edge *e, InfoGrafo* info) {
-    struct edge* ed = (struct edge*) e;
+    Edge* ed = (Edge*) e;
     if (ed != NULL) {
         ed->info = info;
     }
 }
 
 void removeEdge(Graph *g, Edge *e) {
-    struct graph* gr = (struct graph*) g;
-    struct edge* ed = (struct edge*) e;
+    Graph* gr = (Graph*) g;
+    Edge* ed = (Edge*) e;
     
     if (gr == NULL || ed == NULL) {
         return;
@@ -342,11 +329,9 @@ void removeEdge(Graph *g, Edge *e) {
         return;
     }
 
-    // MUDANÇA: Passa o endereço do destino diretamente como contexto
     int target = ed->to;
 
-    // Assumindo que removerElemento retorna o dado removido
-    struct edge* removido = (struct edge*) removerElemento(gr->listaAdj[u].listaEdges, &target, comparaArestaPorDestino);
+    Edge* removido = (Edge*) removerElemento(gr->listaAdj[u].listaEdges, &target, comparaArestaPorDestino);
     
     if (removido != NULL) {
         free(removido);
@@ -362,7 +347,6 @@ bool isAdjacent(Graph *g, Node from, Node to) {
     }
 }
 
-// --- AUXILIARES PARA LISTAGEM ---
 
 static void copiarParaLista(Lista* origem, Lista* destino, bool isNode) {
     if (origem == NULL || destino == NULL) {
@@ -371,7 +355,7 @@ static void copiarParaLista(Lista* origem, Lista* destino, bool isNode) {
 
     int tam = tamanhoLista(origem);
     for (int i = 0; i < tam; i++) {
-        struct edge* e = (struct edge*) removerInicio(origem);
+        Edge* e = (Edge*) removerInicio(origem);
         
         if (isNode) {
             int* nodePtr = (int*) malloc(sizeof(int));
@@ -386,7 +370,7 @@ static void copiarParaLista(Lista* origem, Lista* destino, bool isNode) {
 }
 
 void adjacentNodes(Graph *g, Node node, Lista *nosAdjacentes) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL || node < 0 || node >= gr->maxVert || !gr->listaAdj[node].ativo) {
         return;
     }
@@ -394,7 +378,7 @@ void adjacentNodes(Graph *g, Node node, Lista *nosAdjacentes) {
 }
 
 void adjacentEdges(Graph *g, Node node, Lista *arestasAdjacentes) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL || node < 0 || node >= gr->maxVert || !gr->listaAdj[node].ativo) {
         return;
     }
@@ -402,7 +386,7 @@ void adjacentEdges(Graph *g, Node node, Lista *arestasAdjacentes) {
 }
 
 void getNodeNames(Graph *g, Lista *nomesNodes) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return;
     }
@@ -415,7 +399,7 @@ void getNodeNames(Graph *g, Lista *nomesNodes) {
 }
 
 void getEdges(Graph *g, Lista *arestas) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return;
     }
@@ -427,13 +411,11 @@ void getEdges(Graph *g, Lista *arestas) {
     }
 }
 
-// --- PERCURSOS (DFS / BFS) ---
 
-static bool dfsRec(struct graph* gr, int u, 
+static bool dfsRec(Graph* gr, int u, 
                    procEdge tree, procEdge fwd, procEdge ret, procEdge cross, 
                    void* extra) {
     
-    // MUDANÇA: Usando ENUM
     gr->listaAdj[u].cor = CINZA;
     gr->tempo++;
     gr->listaAdj[u].td = (double) gr->tempo;
@@ -443,7 +425,7 @@ static bool dfsRec(struct graph* gr, int u,
     bool abortar = false;
 
     for (int k = 0; k < tam; k++) {
-        struct edge* e = (struct edge*) removerInicio(l);
+        Edge* e = (Edge*) removerInicio(l);
         int v = e->to;
 
         if (!abortar) {
@@ -465,7 +447,6 @@ static bool dfsRec(struct graph* gr, int u,
                 }
 
             } else if (gr->listaAdj[v].cor == CINZA) {
-                // Back Edge
                 if (ret != NULL) {
                     continuar = ret((Graph*)gr, (Edge*)e, gr->listaAdj[u].td, 0.0, extra);
                 }
@@ -474,14 +455,11 @@ static bool dfsRec(struct graph* gr, int u,
                 }
 
             } else {
-                // Preto
                 if (gr->listaAdj[u].td < gr->listaAdj[v].td) {
-                    // Forward
                     if (fwd != NULL) {
                         continuar = fwd((Graph*)gr, (Edge*)e, gr->listaAdj[u].td, gr->listaAdj[v].td, extra);
                     }
                 } else {
-                    // Cross
                     if (cross != NULL) {
                         continuar = cross((Graph*)gr, (Edge*)e, gr->listaAdj[u].td, gr->listaAdj[v].td, extra);
                     }
@@ -493,10 +471,9 @@ static bool dfsRec(struct graph* gr, int u,
             }
         }
         
-        inserirFim(l, (void*)e); // Devolve aresta
+        inserirFim(l, (void*)e);
     }
 
-    // MUDANÇA: Usando ENUM
     gr->listaAdj[u].cor = PRETO;
     gr->tempo++;
     gr->listaAdj[u].tf = (double) gr->tempo;
@@ -511,14 +488,13 @@ static bool dfsRec(struct graph* gr, int u,
 bool dfs(Graph *g, Node node, procEdge treeEdge, procEdge forwardEdge, procEdge returnEdge,
     procEdge crossEdge, dfsRestarted newTree, void *extra) {
     
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return false;
     }
 
-    // Inicializa
     for (int i = 0; i < gr->maxVert; i++) {
-        gr->listaAdj[i].cor = BRANCO; // Enum
+        gr->listaAdj[i].cor = BRANCO; 
         gr->listaAdj[i].td = 0.0;
         gr->listaAdj[i].tf = 0.0;
     }
@@ -551,7 +527,7 @@ bool dfs(Graph *g, Node node, procEdge treeEdge, procEdge forwardEdge, procEdge 
 }
 
 bool bfs(Graph *g, Node node, Node discoverNode, void *extra) {
-    struct graph* gr = (struct graph*) g;
+    Graph* gr = (Graph*) g;
     if (gr == NULL) {
         return false;
     }
@@ -562,7 +538,7 @@ bool bfs(Graph *g, Node node, Node discoverNode, void *extra) {
     procEdge onDiscover = (procEdge) discoverNode;
 
     for (int i = 0; i < gr->maxVert; i++) {
-        gr->listaAdj[i].cor = BRANCO; // Enum
+        gr->listaAdj[i].cor = BRANCO; 
         gr->listaAdj[i].td = 0.0;
     }
 
@@ -571,7 +547,7 @@ bool bfs(Graph *g, Node node, Node discoverNode, void *extra) {
         return false;
     }
 
-    gr->listaAdj[node].cor = CINZA; // Enum
+    gr->listaAdj[node].cor = CINZA; 
     gr->listaAdj[node].td = 0.0;
 
     int* start = (int*) malloc(sizeof(int));
@@ -589,7 +565,7 @@ bool bfs(Graph *g, Node node, Node discoverNode, void *extra) {
         int tam = tamanhoLista(l);
 
         for (int k = 0; k < tam; k++) {
-            struct edge* e = (struct edge*) removerInicio(l);
+            Edge* e = (Edge*) removerInicio(l);
             int v = e->to;
 
             if (gr->listaAdj[v].cor == BRANCO) {
@@ -610,10 +586,10 @@ bool bfs(Graph *g, Node node, Node discoverNode, void *extra) {
             inserirFim(l, (void*)e);
 
             if (!sucesso) {
-                // Não break aqui
+                break;
             }
         }
-        gr->listaAdj[u].cor = PRETO; // Enum
+        gr->listaAdj[u].cor = PRETO; 
 
         if (!sucesso) {
             break;

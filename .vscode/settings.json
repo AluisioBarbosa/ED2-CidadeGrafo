@@ -4,7 +4,8 @@
         "argumentos.h": "c",
         "programa.h": "c",
         "hashtable.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "processargeo.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

@@ -7,6 +7,7 @@
 #include "STreap.h"
 #include "digraph.h"
 #include "processarGeo.h"
+#include "processarVia.h"
 #include <string.h>
 
 struct programa{
@@ -16,7 +17,7 @@ struct programa{
     
     HashTable* idQuadras;
     HashTable* idVertices;
-    HashTable* idArestas;
+    HashTable* idBloqueios;
     FILE* arquivoLOG;
 };
 
@@ -29,19 +30,29 @@ Programa* criarPrograma(int argc, char* argv[]){
 
     programa->args = processarArgumentos(argc, argv);
     programa->quadras = createSTrp(0.0006);
-    programa->vias = createGraph(10000);
-    programa->idQuadras = criarHashTable(5000);
-    programa->idVertices = criarHashTable(5000);
-    programa->idArestas = criarHashTable(5000);
+    programa->vias = NULL;
+    programa->idQuadras = criarHashTable(5003);
+    programa->idVertices = criarHashTable(5003);
+    programa->idBloqueios = criarHashTable(5003);
 
     printArgumentos(programa->args);
     return programa;
 }
 
+
+
+
+
 void run(Programa* programa){
     processarGeo(getCaminhoGeo(programa->args), programa->quadras, programa->idQuadras);
     printSTrp(programa->quadras, "arquivo.dot");
+
+    programa->vias = processarVia(getCaminhoVia(programa->args), programa->idVertices);
 }
+
+
+
+
 
 void destruirPrograma(Programa* programa){
     destruirArgumentos(programa->args);

@@ -252,7 +252,7 @@ static void killRec(StreapNode* no) {
 
 
 STreap* createSTrp(double epsilon) {
-    struct streap* t = (struct streap*) malloc(sizeof(struct streap));
+    STreap* t = (STreap*) malloc(sizeof(STreap));
     if (t != NULL) {
         t->raiz = NULL;
         t->epsilon = epsilon;
@@ -263,7 +263,7 @@ STreap* createSTrp(double epsilon) {
 }
 
 StreapNode* insertSTrp(STreap* t, double x, double y, Info info) {
-    struct streap* st = (struct streap*) t;
+    STreap* st = (STreap*) t;
     if (st == NULL) {
         return NULL;
     }
@@ -279,7 +279,7 @@ StreapNode* insertSTrp(STreap* t, double x, double y, Info info) {
 }
 
 void getStreapNodeRegiaoSTrp(STreap* t, double x, double y, double w, double h, Lista* resultado) {
-    struct streap* st = (struct streap*) t;
+    STreap* st = (STreap*) t;
     if (st == NULL) {
         return;
     }
@@ -294,7 +294,7 @@ Info* getInfoSTrp(STreap* t, StreapNode* n) {
 }
 
 StreapNode* getStreapNodeSTrp(STreap* t, double xa, double ya) {
-    struct streap* st = (struct streap*) t;
+    STreap* st = (STreap*) t;
     if (st == NULL) {
         return NULL;
     }
@@ -327,7 +327,7 @@ Info* deleteStreapNodeSTrp(STreap* t, StreapNode* n) {
 }
 
 Info* removeSTrp(STreap* t, double xa, double ya) {
-    struct streap* st = (struct streap*) t;
+    STreap* st = (STreap*) t;
     if (st == NULL) {
         return NULL;
     }
@@ -345,7 +345,7 @@ Info* removeSTrp(STreap* t, double xa, double ya) {
 }
 
 void killSTrp(STreap* t) {
-    struct streap* st = (struct streap*) t;
+    STreap* st = (STreap*) t;
     if (st != NULL) {
         killRec(st->raiz);
         free(st);
