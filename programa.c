@@ -5,18 +5,19 @@
 #include "lista.h"
 #include "hashTable.h"
 #include "STreap.h"
+#include "digraph.h"
 #include <string.h>
 
 struct programa{
     DadosArgumentos* args;
     STreap* quadras;
+    Graph* vias;
     
     HashTable* idQuadras;
     HashTable* idVertices;
     HashTable* idArestas;
     FILE* arquivoLOG;
 };
-
 
 Programa* criarPrograma(int argc, char* argv[]){
     Programa* programa = (Programa*)malloc(sizeof(Programa));

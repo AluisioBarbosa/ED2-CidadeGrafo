@@ -3,7 +3,8 @@
         "stdio.h": "c",
         "argumentos.h": "c",
         "programa.h": "c",
-        "hashtable.h": "c"
+        "hashtable.h": "c",
+        "string.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

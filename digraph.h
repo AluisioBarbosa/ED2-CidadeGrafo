@@ -23,25 +23,25 @@ A documentacao deste modulo deve ser melhorada.
 typedef struct graph Graph;
 typedef int Node;
 typedef struct edge Edge;
-typedef void *Info;
+typedef void InfoGrafo;
 
 /*
   Invocado quando uma aresta � "descoberta"/"percorrida"/"classificada". 
   Tambem informa os tempos de descoberta e finalizacao
  */
-bool (*procEdge)(Graph* g, Edge* e, double td, double tf, void *extra); 
+typedef bool (*procEdge)(Graph* g, Edge* e, double td, double tf, void *extra); 
 
 /*
   Invocado quando percurso e' recomecado
  */
-bool (*dfsRestarted)(Graph *g, void *extra);
+typedef bool (*dfsRestarted)(Graph *g, void *extra);
 
 
 
 /*
     Cria um grafo com, no maximo, "nVert" vertices.
  */
-Graph createGraph(int nVert);
+Graph* createGraph(int nVert);
 
 
 /*
@@ -59,38 +59,38 @@ int getTotalNodes(Graph g);
 /*
     Adiciona um novo v�rtice ao grafo "g" com o nome "nome".
  */
-Node addNode(Graph *g, char nome, Info *info);
+Node addNode(Graph *g, char *nome, InfoGrafo *info);
 
 
 /*
     Retorna no' cujo de nome e' "nome". 
  */
-Node getNode(Graph *g, char nome);
+Node getNode(Graph *g, char *nome);
 
 
 /*
  */
-Info getNodeInfo(Graph *g, Node *node);
+InfoGrafo* getNodeInfo(Graph *g, Node *node);
 
 
 /*
  */
-char *getNodeName(Graph *g, Node *node);
+char *getNodeName(Graph *g, Node node);
 
 
 /*
  */
-void setNodeInfo(Graph *g, Node *node, Info *info);
+void setNodeInfo(Graph *g, Node node, InfoGrafo* info);
 
 
 /*
  */
-Edge addEdge(Graph *g, Node *from, Node *to, Info *info);
+Edge* addEdge(Graph *g, Node from, Node to, InfoGrafo* info);
 
 
 /*
  */
-Edge getEdge(Graph *g, Node *from, Node *to);
+Edge* getEdge(Graph *g, Node from, Node to);
 
 
 /*
@@ -105,12 +105,12 @@ Node getToNode(Graph *g, Edge *e);
 
 /*
  */
-Info getEdgeInfo(Graph *g, Edge *e);
+InfoGrafo* getEdgeInfo(Graph *g, Edge *e);
 
 
 /*
  */
-void setEdgeInfo(Graph *g, Edge *e, Info *info);
+void setEdgeInfo(Graph *g, Edge *e, InfoGrafo* info);
 
 
 /*
@@ -120,26 +120,26 @@ void removeEdge(Graph *g, Edge *e);
 
 /*
  */
-bool isAdjacent(Graph *g, Node *from, Node *to);
+bool isAdjacent(Graph *g, Node from, Node to);
 
 
 /* 
    Adiciona 'a lista "nosAdjacentes" os nos adjacentes 'a "node".
  */
-void adjacentNodes(Graph *g, Node *node, Lista *nosAdjacentes);
+void adjacentNodes(Graph *g, Node node, Lista *nosAdjacentes);
 
 
 /*
    Adiciona 'a lista "arestaAdjacentes" as arestas (x,y), tal que,
    x == node.
  */
-void adjacentEdges(Graph *g, Node *node, Lista *arestasAdjacentes);
+void adjacentEdges(Graph *g, Node node, Lista *arestasAdjacentes);
 
 
 /*
    Insere na lista "nomesNodes" os nomes atribuidos aos nos do grafo.
  */
-void  getNodeNames(Graph *g, Lista *nomesNodes);
+void getNodeNames(Graph *g, Lista *nomesNodes);
 
 
 /*
@@ -154,15 +154,15 @@ void getEdges(Graph *g, Lista *arestas);
       A busca em profundidade, eventualmente, pode produzir uma floresta.
    newTree e' invocada sempre que o percurso for retomado.
  */  
-bool dfs(Graph *g, Node *node, /*procEdge treeEdge,*/ Edge *forwardEdge, Edge *returnEdge,
-	 Edge* crossEdge, /*newTree,*/ void *extra);
+bool dfs(Graph *g, Node node, procEdge treeEdge, procEdge forwardEdge, procEdge returnEdge,
+	 procEdge crossEdge, dfsRestarted newTree, void *extra);
 
 
 /*
    Percorre o grafo g em largura, a partir do no' node. discoverNode e' usada
    para a aresta (x,y) usada para "descobrir" o y.
  */
-bool bfs(Graph *g, Node *node, Node *discoverNode, void *extra);
+bool bfs(Graph *g, Node node, Node discoverNode, void *extra);
 
 
 /*
