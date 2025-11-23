@@ -147,6 +147,8 @@ void getNodeNames(Graph *g, Lista *nomesNodes);
  */
 void getEdges(Graph *g, Lista *arestas);
 
+void removeNodeAndEdges(Graph* g, Node node);
+
 
 /*
    Faz percurso em profundidade sobre  g, a partir do no' node, classificando 

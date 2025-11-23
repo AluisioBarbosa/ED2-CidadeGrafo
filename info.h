@@ -1,3 +1,4 @@
+#include <stdbool.h>
 typedef struct infoAresta InfoAresta;
 typedef struct infoVertice InfoVertice;
 
@@ -13,3 +14,6 @@ bool isArestaAtiva(void*);
 double getXVertice(void*);
 double getYVertice(void*);
 char* getIdVertice(void*);
+
+
+void setArestaAtiva(void* infoAresta, bool status);

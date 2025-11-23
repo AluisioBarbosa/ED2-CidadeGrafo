@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "programa.h"
 #include "argumentos.h"
 #include "lista.h"
@@ -8,7 +9,8 @@
 #include "digraph.h"
 #include "processarGeo.h"
 #include "processarVia.h"
-#include <string.h>
+#include "processarQry.h"
+
 
 struct programa{
     DadosArgumentos* args;
@@ -18,8 +20,28 @@ struct programa{
     HashTable* idQuadras;
     HashTable* idVertices;
     HashTable* idBloqueios;
-    FILE* arquivoLOG;
 };
+
+static char* extrairNomeBase(char* caminhoCompleto) {
+    if (caminhoCompleto == NULL) {
+        return NULL;
+    }
+    char* nomeComExtensao = strrchr(caminhoCompleto, '/');
+    if (nomeComExtensao != NULL) {
+        nomeComExtensao++; 
+    } else {
+        nomeComExtensao = caminhoCompleto;
+    }
+
+    char* nomeBase = strdup(nomeComExtensao);
+    
+    char* ponto = strrchr(nomeBase, '.');
+    if (ponto != NULL) {
+        *ponto = '\0';
+    }
+
+    return nomeBase;
+}
 
 Programa* criarPrograma(int argc, char* argv[]){
     Programa* programa = (Programa*)malloc(sizeof(Programa));
@@ -40,14 +62,22 @@ Programa* criarPrograma(int argc, char* argv[]){
 }
 
 
-
-
-
 void run(Programa* programa){
     processarGeo(getCaminhoGeo(programa->args), programa->quadras, programa->idQuadras);
     printSTrp(programa->quadras, "arquivo.dot");
+    char* nomeBaseGeo = extrairNomeBase(getCaminhoGeo(programa->args));
+    char* nomeBaseQry = extrairNomeBase(getCaminhoQry(programa->args));
 
-    programa->vias = processarVia(getCaminhoVia(programa->args), programa->idVertices);
+    programa->vias = processarVIA(getCaminhoVia(programa->args), programa->idVertices);
+    processarQry(getCaminhoQry(programa->args),
+                        getDIRsaida(programa->args),
+                        nomeBaseGeo,
+                        nomeBaseQry,
+                        programa->idQuadras,
+                        programa->vias,
+                        programa->idBloqueios,
+                        programa->quadras,
+                        programa->idVertices);
 }
 
 
@@ -58,3 +88,4 @@ void destruirPrograma(Programa* programa){
     destruirArgumentos(programa->args);
 
 }
+

@@ -604,3 +604,49 @@ bool bfs(Graph *g, Node node, Node discoverNode, void *extra) {
 
     return sucesso;
 }
+
+void removeNodeAndEdges(Graph* g, Node node) {
+    Graph* gr = g;
+    if (!gr){
+         return;
+    }
+    
+    if (node < 0 || node >= gr->maxVert || !gr->listaAdj[node].ativo){
+        return;
+    }
+    Lista* l = gr->listaAdj[node].listaEdges;
+    while (!listaVazia(l)) {
+        Edge* e = (Edge*) removerInicio(l);
+        free(e); 
+    }
+    
+
+    for (int i = 0; i < gr->maxVert; i++) {
+
+        if (gr->listaAdj[i].ativo && i != node) {
+            Lista* adj = gr->listaAdj[i].listaEdges;
+            
+            int tam = tamanhoLista(adj);
+            for (int k = 0; k < tam; k++) {
+                struct edge* e = (struct edge*) removerInicio(adj);
+                
+                if (e->to == node) {
+                    free(e); 
+                    gr->nEdges--;
+                } else {
+                    inserirFim(adj, e); 
+                }
+            }
+        }
+    }
+
+
+    gr->listaAdj[node].ativo = false;
+    gr->nVert--;
+    
+    if (gr->listaAdj[node].vertice.nome) {
+        free(gr->listaAdj[node].vertice.nome);
+        gr->listaAdj[node].vertice.nome = NULL;
+    }
+
+}

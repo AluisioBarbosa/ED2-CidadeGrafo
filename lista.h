@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-// Structs opacas 
 typedef struct lista Lista;
 
 

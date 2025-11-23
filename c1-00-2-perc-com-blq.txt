@@ -1,0 +1,8 @@
+blq: Bloqueio 'blq-ilha-centro-ns' aplicado na regiao (670.0, 386.7).
+blq: Bloqueio 'blq-ilha-centro-sn' aplicado na regiao (670.0, 573.3).
+blq: Bloqueio 'blq-ilha-centro-lo' aplicado na regiao (520.0, 536.7).
+blq: Bloqueio 'blq-ilha-centro-ol' aplicado na regiao (840.0, 623.3).
+pnt: Quadra b09.2 pintada de #800080/#ff6600.
+pnt: Quadra b08.10 pintada de #ff6600/#800080.
+@o?: Endereco b09.2 localizado em (234.00, 935.00).
+p?: Enderecos de origem ou destino invalidos.

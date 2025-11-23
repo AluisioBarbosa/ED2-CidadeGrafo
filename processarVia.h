@@ -1,4 +1,4 @@
 #include "digraph.h"
 #include "hashTable.h"
 
-Graph* processarVIA(char*, HashTable);
+Graph* processarVIA(char*, HashTable*);

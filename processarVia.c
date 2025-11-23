@@ -33,7 +33,7 @@ static void trimEnd(char* str) {
     }
 }
 
-Graph* processarArquivoVia(char* pathVia, HashTable* idVertices) {
+Graph* processarVIA(char* pathVia, HashTable* idVertices) {
     if (pathVia == NULL) {
         return NULL;
     }

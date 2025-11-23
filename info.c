@@ -5,20 +5,20 @@
 #include <stdio.h>
 
 
-typedef struct {
+struct infoVertice{
     char* id;
     double x;
     double y;
-} InfoVertice;
+};
 
-typedef struct {
+ struct infoAresta{
     char* nome; // Nome da rua
     char* ldir; // CEP lado direito
     char* lesq; // CEP lado esquerdo
     double cmp; // Comprimento
     double vm;  // Velocidade Média
     bool ativo; // aqui é pra bloquear ou nao
-} InfoAresta;
+};
 
 InfoVertice* criaInfoVertice(char* id, double x, double y) {
     InfoVertice* i = (InfoVertice*) malloc(sizeof(InfoVertice));
@@ -82,5 +82,12 @@ void destroiInfoAresta(void* i) {
         free(ia->ldir); 
         free(ia->lesq); 
         free(ia); 
+    }
+}
+
+void setArestaAtiva(void* i, bool status) {
+    InfoAresta* ia = (InfoAresta*) i;
+    if (ia != NULL) {
+        ia->ativo = status;
     }
 }

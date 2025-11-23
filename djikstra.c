@@ -22,21 +22,6 @@ static Caminho* criarEstruturaCaminho() {
 }
 
 
-Lista* caminho_get_lista(Caminho* c) {
-    if (c != NULL) {
-        return c->nos;
-    }
-    return NULL;
-}
-
-double caminho_get_custo(Caminho* c) {
-    if (c != NULL) {
-        return c->custoTotal;
-    }
-    return -1.0;
-}
-
-
 Caminho* dijkstra(Graph *g, int origem, int destino, ObterPesoFunc getPeso) {
     if (g == NULL) {
         return NULL;
