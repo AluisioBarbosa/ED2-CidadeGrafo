@@ -2,22 +2,20 @@
 #include <stdlib.h>
 #include "programa.h"
 #include "argumentos.h"
-#include "log.h"
 #include "lista.h"
-#include "STreap.h"
-#include "digraph.h"
 #include "hashTable.h"
+#include "STreap.h"
+#include <string.h>
 
 struct programa{
     DadosArgumentos* args;
     STreap* quadras;
-    Graph* vias;
     
     HashTable* idQuadras;
     HashTable* idVertices;
     HashTable* idArestas;
+    FILE* arquivoLOG;
 };
-
 
 
 Programa* criarPrograma(int argc, char* argv[]){
@@ -30,18 +28,11 @@ Programa* criarPrograma(int argc, char* argv[]){
     programa->args = processarArgumentos(argc, argv);
 
     printArgumentos(programa->args);
-
-    initLog(getDIRsaida(programa->args));
     return programa;
 }
 
 void run(Programa* programa){
-    printArgumentos(programa->args);
-
-
-
-
-
+    
 }
 
 void destruirPrograma(Programa* programa){

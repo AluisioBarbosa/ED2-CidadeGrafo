@@ -22,7 +22,7 @@ reais (da chave de busca) devem ser considerados como iguais. Assim v == w, se |
 
     Algumas operacoes de busca retornam o no� da arvore onde uma determinada informacao esta' armazenada. 
 Os dados referentes a este no� podem ser obtidos por outras operacoes, desde que estes nos continuem
-validos. Qualquer remocao posterior faz com que nos (Node) retornados previamente devam ser considerados
+validos. Qualquer remocao posterior faz com que nos (StreapNode) retornados previamente devam ser considerados
 invalidos. 
 */
 
@@ -30,7 +30,7 @@ invalidos.
 
 typedef struct streap STreap; 
 typedef void *Info;
-typedef struct node Node;
+typedef struct streapNode StreapNode;
 
 typedef void (*FvisitaNo) (Info i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void *aux);
 /*
@@ -47,7 +47,7 @@ STreap* createSTrp(double epsilon);
   Retorna NULL caso nao tenha conseguido criar a arvore.
  */
 
-Node* insertSTrp(STreap* t, double x, double y,  Info info);
+StreapNode* insertSTrp(STreap* t, double x, double y,  Info info);
 /*
   Insere a informacao info na arvore t, associada a coordenada (x,y).
   Retorna o no� onde foi inserida a informacao; NULL, caso ja exista informacao com a mesma chave (veja acima)
@@ -55,31 +55,31 @@ Node* insertSTrp(STreap* t, double x, double y,  Info info);
  */
 
 
-void getNodeRegiaoSTrp(STreap* t, double x, double y, double w, double h, Lista resultado);
+void getStreapNodeRegiaoSTrp(STreap* t, double x, double y, double w, double h, Lista* resultado);
 /*
-  Insere na lista resultado os nos da arvore (Node) cuja ancora estejam dentro da regiao retangular 
+  Insere na lista resultado os nos da arvore (StreapNode) cuja ancora estejam dentro da regiao retangular 
   de ancora (x,y), largura w e altura h.
  */
 
 
-Info* getInfoSTrp(STreap* t, Node n);
+Info* getInfoSTrp(STreap* t, StreapNode* n);
 /*
   Retorna a informacao associada ao no� n, sua ancora (xa,ya) e o retangulo envolvente (mbbX1,mbbY1) -- (mbbX2,mbbY2). 
   Este no� deve ser um no� valido (veja acima).
  */
 
-Node* getNodeSTrp(STreap* t, double xa, double ya);
+StreapNode* getStreapNodeSTrp(STreap* t, double xa, double ya);
 /*
   Retorna o no da arvore associado a ancora (xa,ya) e o retangulo envolvente; NULL, se tal ancora nao existir.
  */
 
-void updateInfoSTrp(STreap* t, Node n, Info i);
+void updateInfoSTrp(STreap* t, StreapNode* n, Info i);
 /*
   Altera a informacao associada ao no n que deve ser existente e valido. 
   A ancora  deste no nao sao alterado.
  */
 
-Info* deleteNodeSTrp(STreap* t, Node n);
+Info* deleteStreapNodeSTrp(STreap* t, StreapNode* n);
 /*
   Remove o no' n da arvore, portanto, o no' n  deve ser considerado invalido.
   Retorna a informacao que estava associada a tal no'.
@@ -116,4 +116,4 @@ void percursoProfundidade(STreap* t, FvisitaNo fVisita, void *aux);
  */
 void killSTrp(STreap* t);
 
-#endif;
+#endif

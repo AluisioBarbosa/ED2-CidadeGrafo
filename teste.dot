@@ -1,0 +1,28 @@
+digraph STreap {
+    node [shape=record, fontname="Arial"];
+    n001A15B0 [label="{ (20.0, 10.0) | P:0.81 | Box:[0.0, 0.0, 100.0, 100.0] }"];
+    n001A15B0 -> n001A1608 [color=blue];
+    n001A1608 [label="{ (0.0, 10.0) | P:0.59 | Box:[0.0, 0.0, 10.0, 20.0] }"];
+    nullL001A1608 [shape=point];
+    n001A1608 -> nullL001A1608 [color=blue];
+    n001A1608 -> n001A6F78 [color=red];
+    n001A6F78 [label="{ (10.0, 20.0) | P:0.56 | Box:[10.0, 0.0, 10.0, 20.0] }"];
+    n001A6F78 -> n001A1558 [color=blue];
+    n001A1558 [label="{ (10.0, 0.0) | P:0.19 | Box:[10.0, 0.0, 10.0, 10.0] }"];
+    nullL001A1558 [shape=point];
+    n001A1558 -> nullL001A1558 [color=blue];
+    n001A1558 -> n001A6F20 [color=red];
+    n001A6F20 [label="{ (10.0, 10.0) | P:0.00 | Box:[10.0, 10.0, 10.0, 10.0] }"];
+    nullL001A6F20 [shape=point];
+    n001A6F20 -> nullL001A6F20 [color=blue];
+    nullR001A6F20 [shape=point];
+    n001A6F20 -> nullR001A6F20 [color=red];
+    nullR001A6F78 [shape=point];
+    n001A6F78 -> nullR001A6F78 [color=red];
+    n001A15B0 -> n001A04D8 [color=red];
+    n001A04D8 [label="{ (100.0, 100.0) | P:0.48 | Box:[100.0, 100.0, 100.0, 100.0] }"];
+    nullL001A04D8 [shape=point];
+    n001A04D8 -> nullL001A04D8 [color=blue];
+    nullR001A04D8 [shape=point];
+    n001A04D8 -> nullR001A04D8 [color=red];
+}

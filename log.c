@@ -32,7 +32,7 @@ void logError(const char* mensagem) {
     printf("%s [ERROR] %s\n", horaAtualFormatada(), mensagem);
 }
 
-void initLog(const char* diretorio) {
+FILE* initLog(const char* diretorio) {
     time_t now = time(NULL);
     struct tm* t = localtime(&now);
     char filename[64];
@@ -48,6 +48,7 @@ void initLog(const char* diretorio) {
         exit(1);
     }
     fprintf(logFile, "%s %s\n", horaAtualFormatada(), "PROGRAMA INICIADO\n");
+    return logFile;
 }
 
 void logToFile(const char* mensagem) {

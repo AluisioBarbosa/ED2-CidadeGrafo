@@ -2,7 +2,8 @@
     "files.associations": {
         "stdio.h": "c",
         "argumentos.h": "c",
-        "programa.h": "c"
+        "programa.h": "c",
+        "hashtable.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

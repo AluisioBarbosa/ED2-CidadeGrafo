@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "lista.h"
 #include <stdbool.h>
+#include <string.h>
 
 
 typedef struct HashNode{
