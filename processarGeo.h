@@ -1,4 +1,4 @@
-#include "lista.h"
-#include "argumentos.h"
+#include "hashTable.h"
+#include "STreap.h"
 
-Lista* processarObjetos(DadosArgumentos*);
+void processarGeo(char*, STreap*, HashTable*);

@@ -55,7 +55,7 @@ int tamanhoLista(Lista* l) {
 
 void inserirInicio(Lista* l, void* dados) {
     if (l == NULL){
-        printf("Lista nao existe e/ou nao foi alocada corretamente\n");
+       //printf("Lista nao existe e/ou nao foi alocada corretamente\n");
         return;
     }
     No* novo = (No*)malloc(sizeof(No));
@@ -74,7 +74,7 @@ void inserirInicio(Lista* l, void* dados) {
 
 void inserirFim(Lista* l, void* dados) {
     if (l == NULL) {
-        printf("Lista nao existe e/ou nao foi alocada corretamente\n");
+        //printf("Lista nao existe e/ou nao foi alocada corretamente\n");
         return;
     }
     No* novo = (No*)malloc(sizeof(No));
@@ -96,7 +96,7 @@ void inserirFim(Lista* l, void* dados) {
 
 void* removerInicio(Lista* l) {
     if (l == NULL || listaVazia(l)){
-        printf("Impossivel realizar a remocao no inicio da lista, lista vazia e/ou nao alocada\n");
+        //printf("Impossivel realizar a remocao no inicio da lista, lista vazia e/ou nao alocada\n");
         return NULL;
     }
     No* no_removido = l->inicio;
@@ -112,7 +112,7 @@ void* removerInicio(Lista* l) {
 
 void* removerFim(Lista* l) {
     if (l == NULL || listaVazia(l)){
-        printf("Impossivel realizar a remocao no fim da lista, lista vazia e/ou nao alocada\n");
+        //printf("Impossivel realizar a remocao no fim da lista, lista vazia e/ou nao alocada\n");
         return NULL;
     }
     No* atual = l->inicio;
@@ -136,7 +136,7 @@ void* removerFim(Lista* l) {
 
 void* removerElemento(Lista* l, void* dados_busca, bool (*sao_iguais)(void*, void*)) {
     if (l == NULL || listaVazia(l)){
-        printf("Impossivel remover elemento, lista vazia e/ou nao alocada\n");
+        //printf("Impossivel remover elemento, lista vazia e/ou nao alocada\n");
         return NULL;
     }
     No* atual = l->inicio;
@@ -148,7 +148,7 @@ void* removerElemento(Lista* l, void* dados_busca, bool (*sao_iguais)(void*, voi
     }
 
     if(atual == NULL){
-        printf("Elemento nao encontrado na lista para a remocao\n");
+        //printf("Elemento nao encontrado na lista para a remocao\n");
         return NULL; 
     }
     void* dados_retorno = atual->dados;
@@ -166,7 +166,7 @@ void* removerElemento(Lista* l, void* dados_busca, bool (*sao_iguais)(void*, voi
 
 void* buscarElemento(Lista* l, void* dados_busca, bool (*sao_iguais)(void*, void*)) {
     if(l == NULL || l->inicio == NULL){
-        printf("Busca impossivel, lista vazia e/ou nao alocada\n");
+        //printf("Busca impossivel, lista vazia e/ou nao alocada\n");
         return NULL;
     }
     No* atual = l->inicio;
@@ -176,7 +176,7 @@ void* buscarElemento(Lista* l, void* dados_busca, bool (*sao_iguais)(void*, void
         }
         atual = atual->prox;
     }
-    printf("Elemento nao encontrado na lista\n");
+    //printf("Elemento nao encontrado na lista\n");
     return NULL;
 }
 
