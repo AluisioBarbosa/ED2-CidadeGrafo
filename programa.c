@@ -10,6 +10,8 @@
 #include "processarGeo.h"
 #include "processarVia.h"
 #include "processarQry.h"
+#include "svg.h"
+#define _POSIX_C_SOURCE 200809L
 
 
 struct programa{
@@ -64,6 +66,18 @@ Programa* criarPrograma(int argc, char* argv[]){
 
 void run(Programa* programa){
     processarGeo(getCaminhoGeo(programa->args), programa->quadras, programa->idQuadras);
+
+    if(getCaminhoQry(programa->args) == NULL || getCaminhoVia(programa->args) == NULL){
+        SvgFile* svg = svg_criar(getDIRsaida(programa->args),
+                   extrairNomeBase(getCaminhoGeo(programa->args)),
+                   NULL,
+                   programa->quadras,
+                   NULL);
+        svg_desenhar_quadras(svg, programa->quadras);
+        svg_finalizar(svg);
+        return;
+    }
+
     printSTrp(programa->quadras, "arquivo.dot");
     char* nomeBaseGeo = extrairNomeBase(getCaminhoGeo(programa->args));
     char* nomeBaseQry = extrairNomeBase(getCaminhoQry(programa->args));

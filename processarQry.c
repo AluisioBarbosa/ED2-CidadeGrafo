@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <float.h> 
+#include <stdbool.h>
 #include "processarQry.h"
 #include "svg.h"
 #include "quadra.h"
@@ -11,9 +12,13 @@
 #include "hashTable.h"
 #include "djikstra.h"
 #include "info.h" 
+#define _POSIX_C_SOURCE 200809L
 
-
-// --- FUNÇÕES AUXILIARES DE GEOMETRIA ---
+struct {
+    double x;
+    double y;
+    bool valido;
+} EstadoGPS = {0.0, 0.0, false};
 
 static int pontoInterno(double x, double y, double rx, double ry, double rw, double rh) {
     if (x >= rx && x <= rx + rw) {
@@ -26,9 +31,6 @@ static int pontoInterno(double x, double y, double rx, double ry, double rw, dou
 
 // Agora recebe HashTable* (ponteiro)
 static int resolverEndereco(HashTable* tQuadras, char* cep, char* face, double num, double* x, double* y) {
-    // buscarHashTable espera HashTable* ? Depende da sua lib.
-    // Se sua lib espera HashTable (struct), usamos *tQuadras. Se espera ponteiro, usamos tQuadras.
-    // Pelo padrão C, geralmente libs de hash recebem ponteiro.
     Quadra* q = (Quadra*) buscarHashTable(tQuadras, cep);
     
     if (q == NULL) {
@@ -59,11 +61,9 @@ static int resolverEndereco(HashTable* tQuadras, char* cep, char* face, double n
     return 1;
 }
 
-// Agora recebe Graph* (ponteiro)
 static int encontrarNoMaisProximo(Graph* vias, double px, double py) {
     if (vias == NULL) return -1;
     
-    // Passamos o ponteiro direto, pois getMaxNodes deve esperar Graph*
     int maxV = getMaxNodes(vias);
     
     int melhorNo = -1;
@@ -71,7 +71,6 @@ static int encontrarNoMaisProximo(Graph* vias, double px, double py) {
 
     for (int i = 0; i < maxV; i++) {
         int idNode = i;
-        // Passamos o ponteiro vias
         InfoVertice* info = (InfoVertice*) getNodeInfo(vias, &idNode);
         
         if (info != NULL) {
@@ -86,18 +85,20 @@ static int encontrarNoMaisProximo(Graph* vias, double px, double py) {
             }
         }
     }
+    
     return melhorNo;
 }
 
-// --- CALLBACKS PARA DIJKSTRA ---
 
 static double pesoDistancia(Graph *g, Edge *e) {
-    // g e e já são ponteiros aqui
     InfoAresta* info = (InfoAresta*) getEdgeInfo(g, e);
     
-    if (info == NULL) return -1.0;
-    if (!isArestaAtiva(info)) return -1.0;
-    
+    if (info == NULL){
+        return -1.0;
+    }
+    if (!isArestaAtiva(info)){
+        return -1.0;
+    }
     return getComprimento(info);
 }
 
@@ -112,7 +113,6 @@ static double pesoTempo(Graph *g, Edge *e) {
     return getComprimento(info) / (vm / 3.6);
 }
 
-// --- TRATADORES DE COMANDO (Tudo recebendo ponteiros) ---
 
 static void cmd_pnt(HashTable* idQuadras, char* cep, char* cFill, char* cStrk, FILE* txt) {
     Quadra* q = (Quadra*) buscarHashTable(idQuadras, cep);
@@ -127,85 +127,61 @@ static void cmd_pnt(HashTable* idQuadras, char* cep, char* cFill, char* cStrk, F
 static void cmd_onde(HashTable* idQuadras, char* cep, char* face, double num, FILE* txt, SvgFile* svg) {
     double x, y;
     if (resolverEndereco(idQuadras, cep, face, num, &x, &y)) {
-        fprintf(txt, "@o?: Endereco %s localizado em (%.2f, %.2f).\n", cep, x, y);
-        if (svg != NULL) {
-            svg_desenhar_ponto(svg, x, y, "blue", cep);
+        fprintf(txt, "@o?: Endereco %s/%s/%.1f -> (%.2f, %.2f)\n", cep, face, num, x, y);
+        
+        if (svg) {
+            svg_desenhar_ponto(svg, x, y, "orange", " ");
         }
+
+        EstadoGPS.x = x;
+        EstadoGPS.y = y;
+        EstadoGPS.valido = true;
+
     } else {
-        fprintf(txt, "@o?: Endereco %s invalido ou nao encontrado.\n", cep);
+        fprintf(txt, "@o?: Endereco %s invalido.\n", cep);
+        EstadoGPS.valido = false; 
     }
 }
 
 static void cmd_blq(Graph* vias, HashTable* idBloqueios, char* nome, double x, double y, double w, double h, FILE* txt) {
-    Lista* arestasTotais = criaLista();
-    
-    // Passamos ponteiro vias
-    getEdges(vias, arestasTotais);
+    Lista* listaTotal = criaLista();
+    getEdges(vias, listaTotal);
+    Lista* bloqueadas = criaLista();
 
-    Lista* bloqueadas = criaLista(); // Lista para guardar as arestas afetadas
-
-    while (!listaVazia(arestasTotais)) {
-        // A lista guarda ponteiros para Edge (que é void* ou struct edge*)
-        // Dependendo da implementação da sua lista e getEdges, pode precisar de cast.
-        Edge* e = (Edge*) removerInicio(arestasTotais);
-        
+    while (!listaVazia(listaTotal)) {
+        Edge* e = (Edge*) removerInicio(listaTotal);
         int u = getFromNode(vias, e);
         int v = getToNode(vias, e);
-        
-        // getNodeInfo retorna void*, cast para InfoVertice*
-        InfoVertice* infoU = (InfoVertice*) getNodeInfo(vias, &u);
-        InfoVertice* infoV = (InfoVertice*) getNodeInfo(vias, &v);
-        
-        if (infoU && infoV) {
-            double ux = getXVertice(infoU); double uy = getYVertice(infoU);
-            double vx = getXVertice(infoV); double vy = getYVertice(infoV);
+        InfoVertice* iU = (InfoVertice*) getNodeInfo(vias, &u);
+        InfoVertice* iV = (InfoVertice*) getNodeInfo(vias, &v);
+
+        if (iU && iV) {
+            double ux = getXVertice(iU); double uy = getYVertice(iU);
+            double vx = getXVertice(iV); double vy = getYVertice(iV);
             
-            // Se origem OU destino estiverem no retângulo, bloqueia
             if (pontoInterno(ux, uy, x, y, w, h) || pontoInterno(vx, vy, x, y, w, h)) {
-                
-                // getEdgeInfo retorna void* (Info)
-                void* infoAresta = getEdgeInfo(vias, e);
-                
-                if (infoAresta) {
-                    // --- CORREÇÃO AQUI: Usando Setter ---
-                    setArestaAtiva(infoAresta, false); // Bloqueia (false)
-                    
-                    inserirFim(bloqueadas, (void*)e); // Guarda a aresta na lista de bloqueios
+                void* infoA = getEdgeInfo(vias, e);
+                if (infoA) {
+                    setArestaAtiva(infoA, false);
+                    inserirFim(bloqueadas, (void*)e);
                 }
             }
         }
-        // Não damos free(e) pois pertence ao grafo
     }
-    liberaLista(arestasTotais);
-
-    // Salva na hash
+    liberaLista(listaTotal);
     inserirHashTable(idBloqueios, nome, (void*)bloqueadas);
-    
-    fprintf(txt, "blq: Bloqueio '%s' aplicado na regiao (%.1f, %.1f).\n", nome, x, y);
+    fprintf(txt, "blq: Bloqueio '%s' aplicado.\n", nome);
 }
 
 static void cmd_rbl(Graph* vias, HashTable* idBloqueios, char* nome, FILE* txt) {
-    // Recupera a lista de arestas afetadas por este bloqueio
-    Lista* listaAfetada = (Lista*) buscarHashTable(idBloqueios, nome);
-    
-    if (listaAfetada != NULL) {
-        while (!listaVazia(listaAfetada)) {
-            Edge* e = (Edge*) removerInicio(listaAfetada);
-            
-            // Recupera a info da aresta
-            void* infoAresta = getEdgeInfo(vias, e);
-            
-            if (infoAresta) {
-                // --- CORREÇÃO AQUI: Usando Setter ---
-                setArestaAtiva(infoAresta, true); // Desbloqueia (true)
-            }
+    Lista* lista = (Lista*) buscarHashTable(idBloqueios, nome);
+    if (lista) {
+        while (!listaVazia(lista)) {
+            Edge* e = (Edge*) removerInicio(lista);
+            void* infoA = getEdgeInfo(vias, e);
+            if (infoA) setArestaAtiva(infoA, true);
         }
-        // Libera a lista auxiliar
-        liberaLista(listaAfetada);
-        
-        // Nota: Idealmente removeria da Hash também, mas se não tiver função remove,
-        // o ponteiro fica lá (agora inválido ou vazio).
-        
+        liberaLista(lista);
         fprintf(txt, "rbl: Bloqueio '%s' removido.\n", nome);
     } else {
         fprintf(txt, "rbl: Bloqueio '%s' nao encontrado.\n", nome);
@@ -219,202 +195,129 @@ static int retanguloDentroRetangulo(double r1x, double r1y, double r1w, double r
             r1y + r1h <= r2y + r2h);
 }
 
-// Implementação completa do comando CATAC
-static void cmd_catac(STreap* arvore, Graph* vias, HashTable* idQuadras, HashTable* idVertices,
+static void cmd_catac(STreap* arvore, Graph* vias, HashTable* idQuadras, 
                       double x, double y, double w, double h, FILE* txt, SvgFile* svg) {
     
-    fprintf(txt, "catac: Processando regiao x=%.2f y=%.2f w=%.2f h=%.2f\n", x, y, w, h);
+    fprintf(txt, "catac: Regiao (%.1f, %.1f, %.1f, %.1f)\n", x, y, w, h);
+    if (svg) svg_desenhar_regiao_catac(svg, x, y, w, h, "#AB37C8", "#AA0044", 0.5);
 
-    // --- 1. Desenhar a região no SVG ---
-    if (svg) {
-        svg_desenhar_regiao_catac(svg, x, y, w, h, "#AB37C8", "#AA0044", 0.5);
-    }
-
-    // --- 2. Remover QUADRAS ---
-    // A. Buscar quadras na região usando a STreap
-    Lista* nosEncontrados = criaLista();
-    
-    // getStreapNodeRegiaoSTrp espera (STreap*, x, y, w, h, Lista*)
-    // Ela retorna os StreapNode*.
-    getStreapNodeRegiaoSTrp(arvore, x, y, w, h, nosEncontrados);
-
-    while (!listaVazia(nosEncontrados)) {
-        // O nó da árvore contém a Quadra na info
-        // Dependendo da sua STreap, o retorno na lista pode ser o Nó ou a Info direta.
-        // Assumindo que retorna StreapNode* conforme seu STreap.c original:
-        void* noArv = removerInicio(nosEncontrados); 
+    Lista* listaNos = criaLista();
+    getStreapNodeRegiaoSTrp(arvore, x, y, w, h, listaNos);
+    while(!listaVazia(listaNos)) {
+        void* no = removerInicio(listaNos);
+        Quadra* q = (Quadra*) *getInfoSTrp(arvore, no);
         
-        // Precisamos extrair a Quadra do nó da árvore
-        Quadra* q = (Quadra*) *getInfoSTrp(arvore, noArv); // getInfoSTrp retorna Info*
-        
-        if (q) {
-            // Verifica geometria exata (se está totalmente contida)
+        if (q && quadra_is_ativa(q)) {
             if (retanguloDentroRetangulo(quadra_get_x(q), quadra_get_y(q), 
-                                         quadra_get_largura(q), quadra_get_altura(q),
-                                         x, y, w, h)) {
-                
-                // LOG TXT
-                char* cep = quadra_get_cep(q);
-                fprintf(txt, "  - Quadra Removida: CEP=%s\n", cep);
-
-                // REMOVE DA HASH
-                // removerHashTable(idQuadras, cep); // Se sua hash tiver remover
-
-                // REMOVE DA ARVORE
-                // deleteStreapNodeSTrp retorna a Info removida
-                // Note: Isso remove o nó da árvore.
-                // Cuidado para não invalidar o ponteiro 'q' antes de usar o cep.
-                
-                // Como deleteStreapNodeSTrp pode alterar a estrutura da árvore, 
-                // iterar e deletar ao mesmo tempo é perigoso se não for feito com cuidado.
-                // Mas aqui pegamos todos os nós numa lista separada antes, então é seguro.
-                
-                Info* infoRemovida = deleteStreapNodeSTrp(arvore, noArv);
-                
-                // Libera a memória da Quadra
-                if (infoRemovida) {
-                    quadra_destroi((Quadra*) *infoRemovida);
-                }
+                                         quadra_get_largura(q), quadra_get_altura(q), x, y, w, h)) {
+                fprintf(txt, " - Quadra removida: %s\n", quadra_get_cep(q));
+                deleteStreapNodeSTrp(arvore, no);
             }
         }
     }
-    liberaLista(nosEncontrados);
+    liberaLista(listaNos);
 
-
-    // --- 3. Remover VÉRTICES e ARESTAS do Grafo ---
-    // Como não temos árvore espacial para o grafo, precisamos iterar todos os vértices
-    // (Solução O(V), aceitável para V < 100.000)
-    
     int maxV = getMaxNodes(vias);
-    // Lista de IDs para remover depois (para não alterar o grafo enquanto itera índices se fosse lista ligada)
-    // Como é vetor estático com flag ativo, podemos remover direto.
-    
-    for (int i = 0; i < maxV; i++) {
-        int idNode = i;
-        // Verifica se nó existe
-        InfoVertice* iv = (InfoVertice*) getNodeInfo(vias, &idNode);
-        
-        if (iv != NULL) {
-            double vx = getXVertice(iv);
-            double vy = getYVertice(iv);
-
-            // Verifica se ponto está dentro do retângulo
-            if (pontoInterno(vx, vy, x, y, w, h)) {
-                // LOG TXT
-                fprintf(txt, "  - Vertice Removido: ID=%s (%.2f, %.2f)\n", getIdVertice(iv), vx, vy);
-
-                // REMOVE DA HASH DE VÉRTICES
-                // removerHashTable(idVertices, getIdVertice(iv));
-
-                // REMOVE DO GRAFO (Nó e Arestas Incidentes)
-                removeNodeAndEdges(vias, idNode);
-                
-                // Libera memória da Info do Vértice
+    for(int i=0; i<maxV; i++) {
+        int id = i;
+        InfoVertice* iv = (InfoVertice*) getNodeInfo(vias, &id);
+        if (iv) {
+            if (pontoInterno(getXVertice(iv), getYVertice(iv), x, y, w, h)) {
+                fprintf(txt, " - Vertice removido: %s\n", getIdVertice(iv));
+                removeNodeAndEdges(vias, id);
                 destroiInfoVertice(iv);
-                // O grafo deve setar o ponteiro de info para NULL internamente ou nós fazemos:
-                setNodeInfo(vias, idNode, NULL);
+                setNodeInfo(vias, id, NULL);
             }
         }
     }
 }
 
-
 static void cmd_path(Graph* vias, HashTable* idQuadras, 
-                     char* cO, char* fO, double nO, 
-                     char* cD, char* fD, double nD,
+                     char* cepD, char* faceD, double numD,             
                      char* cor1, char* cor2, FILE* txt, SvgFile* svg) {
-    
-    double xO, yO, xD, yD;
-    
-    int resO = resolverEndereco(idQuadras, cO, fO, nO, &xO, &yO);
-    int resD = resolverEndereco(idQuadras, cD, fD, nD, &xD, &yD);
 
-    if (!resO || !resD) {
-        fprintf(txt, "p?: Enderecos de origem ou destino invalidos.\n");
+    static int pathCounter = 0; // Contador estático para gerar IDs unicos
+    pathCounter++;
+
+    char idDist[32], idTempo[32];
+    sprintf(idDist, "path_d_%d", pathCounter);
+    sprintf(idTempo, "path_t_%d", pathCounter);
+    
+    if (!EstadoGPS.valido) {
+        fprintf(txt, "p?: Erro - Nenhuma origem definida (use @o? antes de p?).\n");
         return;
     }
 
-    int noO = encontrarNoMaisProximo(vias, xO, yO);
-    int noD = encontrarNoMaisProximo(vias, xD, yD);
-
-    if (noO == -1 || noD == -1) {
-        fprintf(txt, "p?: Nao foi possivel encontrar nos proximos aos enderecos.\n");
+    double xOrigem = EstadoGPS.x;
+    double yOrigem = EstadoGPS.y;
+    double xDest, yDest;
+    
+    if (!resolverEndereco(idQuadras, cepD, faceD, numD, &xDest, &yDest)) {
+        fprintf(txt, "p?: Destino %s invalido ou removido.\n", cepD);
         return;
     }
 
     if (svg) {
-        svg_desenhar_ponto(svg, xO, yO, "green", "O");
-        svg_desenhar_ponto(svg, xD, yD, "red", "D");
+        svg_desenhar_marcador_vertical(svg, EstadoGPS.x, EstadoGPS.y, "blue", "origem");
+        svg_desenhar_marcador_vertical(svg, xDest, yDest, "red", "destino");
     }
 
-    // Dijkstra Distância
-    // vias já é Graph*, então passamos direto
+    int noO = encontrarNoMaisProximo(vias, xOrigem, yOrigem);
+    int noD = encontrarNoMaisProximo(vias, xDest, yDest);
+
+    if (noO == -1 || noD == -1) {
+        fprintf(txt, "p?: Impossivel mapear coordenadas para o grafo viario.\n");
+        return;
+    }
+
     Caminho* cDist = dijkstra(vias, noO, noD, pesoDistancia);
     if (cDist) {
-        double custo = caminho_get_custo(cDist);
-        fprintf(txt, "p? (Distancia): %.2f metros.\n", custo);
-        
+        fprintf(txt, "p? (Menor Distancia): %.2f metros.\n", caminho_get_custo(cDist));
         if (svg) {
-            // Assumindo que svg_desenhar_caminho foi atualizada para receber Graph*
-            svg_desenhar_caminho(svg, vias, caminho_get_lista(cDist), cor1);
+            svg_desenhar_caminho(svg, vias, caminho_get_lista(cDist), cor1, idDist);
         }
         destruirCaminho(cDist);
     } else {
-        fprintf(txt, "p? (Distancia): Caminho nao encontrado.\n");
+        fprintf(txt, "p? (Menor Distancia): Nao ha caminho.\n");
     }
 
-    // Dijkstra Tempo
     Caminho* cTempo = dijkstra(vias, noO, noD, pesoTempo);
     if (cTempo) {
-        double custo = caminho_get_custo(cTempo);
-        fprintf(txt, "p? (Tempo): %.2f segundos.\n", custo);
-        
+        fprintf(txt, "p? (Mais Rapido): %.2f segundos.\n", caminho_get_custo(cTempo));
         if (svg) {
-            svg_desenhar_caminho(svg, vias, caminho_get_lista(cTempo), cor2);
+            static int contadorPath = 0;
+            char idUnico[32];
+            sprintf(idUnico, "rota_tempo_%d", contadorPath++);
+            
+            svg_desenhar_caminho(svg, vias, caminho_get_lista(cTempo), cor2, idTempo);
         }
         destruirCaminho(cTempo);
     } else {
-        fprintf(txt, "p? (Tempo): Caminho nao encontrado.\n");
+        fprintf(txt, "p? (Mais Rapido): Nao ha caminho.\n");
     }
 }
 
 
-// --- FUNÇÃO PRINCIPAL ---
 
-// Assinatura atualizada com ponteiros
 void processarQry(char* pathQry, char* dirSaida, char* nomeBaseGeo, char* nomeBaseQry,
                          HashTable* idQuadras, Graph* vias, HashTable* idBloqueios, STreap* arvoreQuadras, HashTable* idVertices) {
     
-    if (pathQry == NULL) {
-        return;
-    }
+    if (!pathQry) return;
 
-    // Monta nome do arquivo TXT
+    EstadoGPS.x = 0; EstadoGPS.y = 0; EstadoGPS.valido = false;
+
     char pathTxt[512];
-    if (dirSaida[strlen(dirSaida)-1] == '/') {
+    if (dirSaida[strlen(dirSaida)-1] == '/')
         sprintf(pathTxt, "%s%s-%s.txt", dirSaida, nomeBaseGeo, nomeBaseQry);
-    } else {
+    else
         sprintf(pathTxt, "%s/%s-%s.txt", dirSaida, nomeBaseGeo, nomeBaseQry);
-    }
 
     FILE* fqry = fopen(pathQry, "r");
     FILE* ftxt = fopen(pathTxt, "w");
+    if (!fqry) return;
 
-    if (fqry == NULL) {
-        printf("Erro: Falha ao abrir .qry: %s\n", pathQry);
-        return;
-    }
-
-    // Cria SVG com a função que concatena nomes
     SvgFile* svg = svg_criar(dirSaida, nomeBaseGeo, nomeBaseQry, arvoreQuadras, vias);
-    // Desenha mapa base (Quadras)
-    if (svg != NULL && arvoreQuadras != NULL) {
-        svg_desenhar_quadras(svg, arvoreQuadras); // Passa conteúdo se a função espera struct, ou ponteiro se espera ponteiro.
-        // ATENÇÃO: Seu svg_desenhar_quadras deve ser atualizado para receber STreap* também!
-        // Se svg.h tiver void svg_desenhar_quadras(SvgFile* s, STreap* t), então remove o *
-        // Vou assumir que você vai atualizar o svg.h para usar STreap*
-        // svg_desenhar_quadras(svg, arvoreQuadras); 
-    }
+    if (svg) svg_desenhar_quadras(svg, arvoreQuadras);
 
     char cmd[10];
     char s1[256], s2[256], s3[256], s4[256], s5[256], s6[256];
@@ -439,23 +342,20 @@ void processarQry(char* pathQry, char* dirSaida, char* nomeBaseGeo, char* nomeBa
             cmd_rbl(vias, idBloqueios, s1, ftxt);
         }
         else if (strcmp(cmd, "p?") == 0) {
-            fscanf(fqry, "%s %s %lf %s %s %lf %s %s", 
-                   s1, s2, &d1, s3, s4, &d2, s5, s6);
-            cmd_path(vias, idQuadras, s1, s2, d1, s3, s4, d2, s5, s6, ftxt, svg);
+            fscanf(fqry, "%s %s %lf %s %s", s1, s2, &d1, s3, s4);
+            cmd_path(vias, idQuadras, s1, s2, d1, s3, s4, ftxt, svg);
         }
         else if (strcmp(cmd, "catac") == 0) {
             fscanf(fqry, "%lf %lf %lf %lf", &d1, &d2, &d3, &d4);
-            cmd_catac(arvoreQuadras, vias, idQuadras, idVertices, d1, d2, d3, d4, ftxt, svg);
+            cmd_catac(arvoreQuadras, vias, idQuadras, d1, d2, d3, d4, ftxt, svg);
         }
     }
 
-    if (svg != NULL) {
-        svg_finalizar(svg);
+    if (svg){
+     svg_finalizar(svg);
     }
-    
-    if (ftxt != NULL) {
+    if (ftxt){
         fclose(ftxt);
     }
-    
     fclose(fqry);
 }

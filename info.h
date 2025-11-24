@@ -14,6 +14,6 @@ bool isArestaAtiva(void*);
 double getXVertice(void*);
 double getYVertice(void*);
 char* getIdVertice(void*);
-
+bool quadra_is_ativa(void* i);
 
 void setArestaAtiva(void* infoAresta, bool status);

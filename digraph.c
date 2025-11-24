@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "digraph.h"
 #include "hashTable.h"
 #include <stdio.h>
@@ -100,7 +101,7 @@ Graph* createGraph(int nVert) {
 }
 
 void killDG(Graph *g) {
-    Graph* gr = (Graph*) g;
+    Graph* gr = g;
     if (gr == NULL) {
         return;
     }
@@ -628,7 +629,7 @@ void removeNodeAndEdges(Graph* g, Node node) {
             
             int tam = tamanhoLista(adj);
             for (int k = 0; k < tam; k++) {
-                struct edge* e = (struct edge*) removerInicio(adj);
+                Edge* e = (Edge*) removerInicio(adj);
                 
                 if (e->to == node) {
                     free(e); 

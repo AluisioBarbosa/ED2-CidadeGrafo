@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "argumentos.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,8 +9,9 @@
 struct dadosArgumentos{
     char* DIR_ENTRADA; // -e opcional, se nao tiver levar em consideracao o diretorio corrente
     char* nomeGeoFILE;  // -f obrigatorio, deve tar no diretorio anterior -e
-    char* nomeQryFILE; // -q obrigatorio, deve tar no mesmo diretorio anterior -e
-    char* DIR_SAIDA; // -o opicional, onde o .svg e o .txt vao aparecer, se nao tiver usar diretorio corrente
+    char* nomeQryFILE; // -q opcional, deve tar no mesmo diretorio anterior -e
+    char* DIR_SAIDA; // -o obrigatorio, onde o .svg e o .txt vao aparecer, se nao tiver usar diretorio corrente
+    char* camVia; // -v opcional, deve tar no mesmo diretorio anterior -e
 
     char* caminhoQRY;
     char* caminhoGEO;
@@ -26,6 +29,7 @@ DadosArgumentos* criarEstruturaArgumentos(){
     args->nomeGeoFILE = NULL;
     args->nomeQryFILE = NULL;
     args->DIR_SAIDA = NULL;
+    args->camVia = NULL;
     args->caminhoQRY = NULL;
     args->caminhoGEO = NULL;
     args->caminhoVIA = NULL;
@@ -103,29 +107,40 @@ DadosArgumentos* processarArgumentos(int argc, char* argv[]){
         else if(strcmp(argv[i], "-o") == 0){
             args->DIR_SAIDA = strdup(argv[i + 1]);
         }
+        else if(strcmp(argv[i], "-v") == 0){
+            args->camVia = strdup(argv[i + 1]);
+        }
         else{
             printf("Flag de entrada %s desconhecida\n", argv[i]);
         }
     }
 
 
-    if(args->nomeGeoFILE == NULL || args->nomeQryFILE == NULL){
+    if(args->nomeGeoFILE == NULL || args->DIR_SAIDA == NULL){
         printf("ERRO: Os parametros obrigatorios do programa não foram todos fornecidos\n");
         exit(1);
     }
 
-    // se nao for informado diretorio de entrada e/ou saida, usa o corrente
+    // se nao for informado diretorio de entrada usa o corrente
     if(args->DIR_ENTRADA == NULL){
         args->DIR_ENTRADA = strdup("./");
     }
 
-    if(args->DIR_SAIDA == NULL){
-        args->DIR_SAIDA = strdup("./");
+    args->caminhoGEO = montarCaminho(args->DIR_ENTRADA, args->nomeGeoFILE);
+
+    if(args->nomeQryFILE != NULL){
+        args->caminhoQRY = montarCaminho(args->DIR_ENTRADA, args->nomeQryFILE);
+    } 
+    else {
+        args->caminhoQRY = NULL;
     }
 
-    args->caminhoGEO = montarCaminho(args->DIR_ENTRADA, args->nomeGeoFILE);
-    args->caminhoQRY = montarCaminho(args->DIR_ENTRADA, args->nomeQryFILE);
-    args->caminhoVIA = gerarCaminhoVia(args->DIR_ENTRADA, args->nomeGeoFILE);
+    if(args->camVia != NULL){
+        args->caminhoVIA = montarCaminho(args->DIR_ENTRADA, args->camVia);
+    } 
+    else {
+        args->caminhoVIA = gerarCaminhoVia(args->DIR_ENTRADA, args->nomeGeoFILE);
+    }
 
     return args;
 }

@@ -4,6 +4,7 @@
 #include "lista.h"
 #include <stdbool.h>
 #include <string.h>
+#define _POSIX_C_SOURCE 200809L
 
 
 typedef struct HashNode{

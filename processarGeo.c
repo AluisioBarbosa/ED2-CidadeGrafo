@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#define _POSIX_C_SOURCE 200809L
 
 
 void processarGeo(char* caminho, STreap* arvoreQuadras, HashTable* idQuadras){

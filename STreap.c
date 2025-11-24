@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
+#define _POSIX_C_SOURCE 200809L
 
 
 typedef struct BoundingBox {

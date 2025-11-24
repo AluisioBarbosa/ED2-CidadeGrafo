@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#define _POSIX_C_SOURCE 200809L
 
 
 struct quadra{

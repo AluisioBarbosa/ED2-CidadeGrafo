@@ -7,9 +7,11 @@
 #include "info.h"  
 #include "STreap.h"
 #include "digraph.h"
+#define _POSIX_C_SOURCE 200809L
 
 struct svgFile {
     FILE* f;
+    double topoMapY;
 };
 typedef struct {
     double minX, minY;
@@ -56,16 +58,28 @@ static void callback_limites_quadra(void* info, double x, double y, double mbbX1
 
 
 SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore, Graph* vias) {
-    if (!diretorio || !nomeGeo || !nomeQry) return NULL;
+    if (!diretorio || !nomeGeo) return NULL; 
 
-    // 1. Monta caminho (Igual ao anterior)
-    size_t len = strlen(diretorio) + strlen(nomeGeo) + strlen(nomeQry) + 7;
+    // Calcula tamanho
+    size_t len = strlen(diretorio) + strlen(nomeGeo) + 7;
+    if (nomeQry) len += strlen(nomeQry) + 1; // +1 do hifen
+
     char* path = (char*) malloc(len);
     
-    if (diretorio[strlen(diretorio) - 1] == '/')
-        sprintf(path, "%s%s-%s.svg", diretorio, nomeGeo, nomeQry);
-    else
-        sprintf(path, "%s/%s-%s.svg", diretorio, nomeGeo, nomeQry);
+    // Monta caminho
+    if (nomeQry && strlen(nomeQry) > 0) {
+        // Com QRY: dir/geo-qry.svg
+        if (diretorio[strlen(diretorio) - 1] == '/')
+            sprintf(path, "%s%s-%s.svg", diretorio, nomeGeo, nomeQry);
+        else
+            sprintf(path, "%s/%s-%s.svg", diretorio, nomeGeo, nomeQry);
+    } else {
+        // Sem QRY: dir/geo.svg
+        if (diretorio[strlen(diretorio) - 1] == '/')
+            sprintf(path, "%s%s.svg", diretorio, nomeGeo);
+        else
+            sprintf(path, "%s/%s.svg", diretorio, nomeGeo);
+    }
 
     FILE* f = fopen(path, "w");
     free(path);
@@ -115,6 +129,7 @@ SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore
     box.minY -= padding;
     box.maxX += padding;
     box.maxY += padding;
+    svg->topoMapY = box.minY + 20.0;
 
     double width = box.maxX - box.minX;
     double height = box.maxY - box.minY;
@@ -127,6 +142,27 @@ SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore
     return svg;
 }
 
+void svg_desenhar_marcador_vertical(SvgFile* svg, double x, double y, char* cor, char* texto) {
+    if (!svg || !svg->f) return;
+
+    double yTopo = svg->topoMapY;
+
+    fprintf(svg->f, "\n\t\n", texto);
+    
+
+    fprintf(svg->f, "\t<line x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\" "
+                    "style=\"stroke:%s;stroke-width:2;stroke-dasharray:5,5\" />\n",
+            x, y, x, yTopo, cor);
+
+
+    fprintf(svg->f, "\t<circle cx=\"%.2f\" cy=\"%.2f\" r=\"6\" fill=\"%s\" stroke=\"black\" stroke-width=\"1\" />\n", 
+            x, y, cor);
+
+
+    fprintf(svg->f, "\t<text x=\"%.2f\" y=\"%.2f\" fill=\"%s\" text-anchor=\"middle\" font-weight=\"bold\" font-size=\"14\">%s</text>\n", 
+            x, yTopo - 5.0, cor, texto);
+}
+
 void svg_desenhar_quadras(SvgFile* svg, STreap* arvore) {
     if (svg == NULL || svg->f == NULL || arvore == NULL) {
         return;
@@ -137,7 +173,7 @@ void svg_desenhar_quadras(SvgFile* svg, STreap* arvore) {
     percursoSimetrico(arvore, callback_desenhar_quadra, (void*) svg->f);
 }
 
-void svg_desenhar_caminho(SvgFile* svg, Graph* vias, Lista* listaNos, char* cor) {
+void svg_desenhar_caminho(SvgFile* svg, Graph* vias, Lista* listaNos, char* cor, char* idUnico) {
     if (svg == NULL || svg->f == NULL || vias == NULL || listaNos == NULL) {
         return;
     }
@@ -146,10 +182,12 @@ void svg_desenhar_caminho(SvgFile* svg, Graph* vias, Lista* listaNos, char* cor)
         return;
     }
 
-    fprintf(svg->f, "\n\t\n");
-    fprintf(svg->f, "\t<polyline points=\"");
+    fprintf(svg->f, "\n\t\n", idUnico);
+
+    fprintf(svg->f, "\t<path id=\"%s\" d=\"", idUnico);
 
     int tam = tamanhoLista(listaNos);
+    int primeiro = 1; 
     
     for (int i = 0; i < tam; i++) {
         int* ptrId = (int*) removerInicio(listaNos);
@@ -160,13 +198,28 @@ void svg_desenhar_caminho(SvgFile* svg, Graph* vias, Lista* listaNos, char* cor)
         if (infoV != NULL) {
             double x = getXVertice(infoV);
             double y = getYVertice(infoV);
-            fprintf(svg->f, "%.2f,%.2f ", x, y);
+            
+            if (primeiro) {
+                fprintf(svg->f, "M %.2f,%.2f ", x, y); 
+                primeiro = 0;
+            } else {
+                fprintf(svg->f, "L %.2f,%.2f ", x, y);
+            }
         }
 
-        inserirFim(listaNos, (void*) ptrId);
+        inserirFim(listaNos, (void*) ptrId); 
     }
 
-    fprintf(svg->f, "\" style=\"fill:none;stroke:%s;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.7\" />\n", cor);
+    fprintf(svg->f, "\" style=\"fill:none;stroke:%s;stroke-width:4;stroke-opacity:0.6\" />\n", cor);
+
+    fprintf(svg->f, "\t<circle r=\"6\" fill=\"%s\" stroke=\"black\" stroke-width=\"1\">\n", cor);
+    
+
+    fprintf(svg->f, "\t\t<animateMotion dur=\"6s\" repeatCount=\"indefinite\" rotate=\"auto\">\n");
+    fprintf(svg->f, "\t\t\t<mpath href=\"#%s\"/>\n", idUnico);
+    fprintf(svg->f, "\t\t</animateMotion>\n");
+    
+    fprintf(svg->f, "\t</circle>\n");
 }
 
 void svg_desenhar_regiao_catac(SvgFile* svg, double x, double y, double w, double h, char* corFill, char* corStroke, double opacidade) {
@@ -206,3 +259,4 @@ void svg_finalizar(SvgFile* svg) {
     
     free(svg);
 }
+

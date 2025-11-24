@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define _POSIX_C_SOURCE 200809L
 
 static int ehEspaco(char c) {
     return (c == ' ' || c == '\n' || c == '\r' || c == '\t');
@@ -74,6 +75,7 @@ Graph* processarVIA(char* pathVia, HashTable* idVertices) {
             fscanf(f, "%s %lf %lf", id, &x, &y);
             
             InfoVertice* iv = criaInfoVertice(id, x, y);
+            
             
             int index = addNode(g, id, iv);
             
