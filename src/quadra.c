@@ -1,6 +1,7 @@
 #include "quadra.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #define _POSIX_C_SOURCE 200809L
 
@@ -12,6 +13,7 @@ struct quadra{
     char* corPreenchimento;
     char* corBorda;
     double espessuraBorda;
+    bool ativa;
 };
 
 Quadra* quadra_cria(char* cep, double x, double y, double largura, double altura, 
@@ -32,6 +34,7 @@ Quadra* quadra_cria(char* cep, double x, double y, double largura, double altura
     q->corPreenchimento = strdup(corPreenchimento);
     q->corBorda = strdup(corBorda);
     q->espessuraBorda = espessuraBorda;
+    q->ativa = true;
     return q;
 }
 
@@ -92,4 +95,15 @@ void quadra_destroi(Quadra* q) {
         }
         free(q);
     }
+}
+
+bool quadra_is_ativa(Quadra* q) {
+    if (q){ 
+        return q->ativa;
+    }
+    return false;
+}
+
+void quadra_set_ativa(Quadra* q, bool status) {
+    q->ativa = status;
 }

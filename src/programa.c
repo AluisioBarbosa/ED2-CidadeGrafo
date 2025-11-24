@@ -45,6 +45,30 @@ static char* extrairNomeBase(char* caminhoCompleto) {
     return nomeBase;
 }
 
+static char* montarCaminhoSaida(char* diretorio, char* nomeBaseGeo, char* nomeBaseQry){
+    size_t tamDiretorio = strlen(diretorio);
+    size_t tamCaminho = tamDiretorio + strlen(nomeBaseGeo) + strlen(nomeBaseQry) + 7; // / - . d o t \0
+    
+    if (diretorio[tamDiretorio - 1] != '/') {
+        tamCaminho++;
+    }
+
+    char* caminho = (char*)malloc(tamCaminho);
+    if(caminho == NULL){
+        printf("Erro na alocacao do caminho para montar o caminho de saida DOT\n");
+        exit(1);
+    }
+    
+    if(diretorio[tamDiretorio - 1] == '/'){
+        snprintf(caminho, tamCaminho, "%s%s-%s.dot", diretorio, nomeBaseGeo, nomeBaseQry);
+    }
+    else{
+        snprintf(caminho, tamCaminho, "%s/%s-%s.dot", diretorio, nomeBaseGeo, nomeBaseQry);
+    }
+
+    return caminho;
+}
+
 Programa* criarPrograma(int argc, char* argv[]){
     Programa* programa = (Programa*)malloc(sizeof(Programa));
     if(programa == NULL){
@@ -78,9 +102,10 @@ void run(Programa* programa){
         return;
     }
 
-    printSTrp(programa->quadras, "arquivo.dot");
+    
     char* nomeBaseGeo = extrairNomeBase(getCaminhoGeo(programa->args));
     char* nomeBaseQry = extrairNomeBase(getCaminhoQry(programa->args));
+    char* caminhoDotSaida = montarCaminhoSaida(getDIRsaida(programa->args), nomeBaseGeo, nomeBaseQry);
 
     programa->vias = processarVIA(getCaminhoVia(programa->args), programa->idVertices);
     processarQry(getCaminhoQry(programa->args),
@@ -92,14 +117,32 @@ void run(Programa* programa){
                         programa->idBloqueios,
                         programa->quadras,
                         programa->idVertices);
+    
+    printSTrp(programa->quadras, caminhoDotSaida);
+
+    free(nomeBaseGeo);
+    free(nomeBaseQry);
+    free(caminhoDotSaida);
 }
-
-
 
 
 
 void destruirPrograma(Programa* programa){
     destruirArgumentos(programa->args);
-
+    if (programa->quadras != NULL){
+        killSTrp(programa->quadras);
+    }
+    if (programa->idQuadras != NULL){
+        destruirHashTable(programa->idQuadras);
+    }
+    if (programa->idVertices != NULL){
+        destruirHashTable(programa->idVertices);
+    }
+    if (programa->idBloqueios != NULL){
+        destruirHashTable(programa->idBloqueios);
+    }
+    if (programa->vias != NULL){
+        killDG(programa->vias);
+    }
+    free(programa);
 }
-

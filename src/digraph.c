@@ -128,16 +128,10 @@ void killDG(Graph *g) {
 
 
 int getMaxNodes(Graph *g) {
-    Graph* gr = (Graph*) g;
-    if (gr != NULL) {
-        return gr->maxVert;
-    }
-    return 0;
+    return g->maxVert;
 }
 
 int getTotalNodes(Graph g) {
-    Graph* gr = (Graph*) &g; 
-
     return g.nVert; 
 }
 
@@ -179,7 +173,7 @@ Node addNode(Graph *g, char *nome, InfoGrafo *info) {
 }
 
 Node getNode(Graph *g, char *nome) {
-    Graph* gr = (Graph*) g;
+    Graph* gr = g;
     if (gr == NULL || nome == NULL) {
         return -1;
     }
@@ -191,13 +185,13 @@ Node getNode(Graph *g, char *nome) {
     return -1;
 }
 
-InfoGrafo* getNodeInfo(Graph *g, Node *node) {
-    Graph* gr = (Graph*) g;
-    if (gr == NULL || node == NULL) {
+InfoGrafo* getNodeInfo(Graph *g, Node node) {
+    Graph* gr = g;
+    if (gr == NULL || node <= 0) {
         return NULL;
     }
     
-    int idx = *node;
+    int idx = node;
     if (idx >= 0) {
         if (idx < gr->maxVert) {
             if (gr->listaAdj[idx].ativo) {
@@ -209,7 +203,7 @@ InfoGrafo* getNodeInfo(Graph *g, Node *node) {
 }
 
 char *getNodeName(Graph *g, Node node) {
-    Graph* gr = (Graph*) g;
+    Graph* gr = g;
     if (gr == NULL) {
         return NULL;
     }
@@ -225,7 +219,7 @@ char *getNodeName(Graph *g, Node node) {
 }
 
 void setNodeInfo(Graph *g, Node node, InfoGrafo* info) {
-    Graph* gr = (Graph*) g;
+    Graph* gr = g;
     if (gr == NULL) {
         return;
     }
@@ -241,7 +235,7 @@ void setNodeInfo(Graph *g, Node node, InfoGrafo* info) {
 
 
 Edge* addEdge(Graph *g, Node from, Node to, InfoGrafo* info) {
-    Graph* gr = (Graph*) g;
+    Graph* gr = g;
     if (gr == NULL) {
         return NULL;
     }
@@ -273,7 +267,7 @@ Edge* addEdge(Graph *g, Node from, Node to, InfoGrafo* info) {
 }
 
 Edge* getEdge(Graph *g, Node from, Node to) {
-    Graph* gr = (Graph*) g;
+    Graph* gr = g;
     if (gr == NULL) {
         return NULL;
     }
@@ -287,7 +281,7 @@ Edge* getEdge(Graph *g, Node from, Node to) {
 }
 
 Node getFromNode(Graph *g, Edge *e) {
-    Edge* ed = (Edge*) e;
+    Edge* ed = e;
     if (ed != NULL) {
         return ed->from;
     }
@@ -295,7 +289,7 @@ Node getFromNode(Graph *g, Edge *e) {
 }
 
 Node getToNode(Graph *g, Edge *e) {
-    Edge* ed = (Edge*) e;
+    Edge* ed = e;
     if (ed != NULL) {
         return ed->to;
     }
@@ -303,7 +297,7 @@ Node getToNode(Graph *g, Edge *e) {
 }
 
 InfoGrafo* getEdgeInfo(Graph *g, Edge *e) {
-    Edge* ed = (Edge*) e;
+    Edge* ed = e;
     if (ed != NULL) {
         return (InfoGrafo*) ed->info;
     }
@@ -311,15 +305,15 @@ InfoGrafo* getEdgeInfo(Graph *g, Edge *e) {
 }
 
 void setEdgeInfo(Graph *g, Edge *e, InfoGrafo* info) {
-    Edge* ed = (Edge*) e;
+    Edge* ed = e;
     if (ed != NULL) {
         ed->info = info;
     }
 }
 
 void removeEdge(Graph *g, Edge *e) {
-    Graph* gr = (Graph*) g;
-    Edge* ed = (Edge*) e;
+    Graph* gr = g;
+    Edge* ed = e;
     
     if (gr == NULL || ed == NULL) {
         return;

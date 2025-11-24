@@ -136,10 +136,10 @@ DadosArgumentos* processarArgumentos(int argc, char* argv[]){
     }
 
     if(args->camVia != NULL){
-        args->caminhoVIA = montarCaminho(args->DIR_ENTRADA, args->camVia);
+        args->caminhoVIA = gerarCaminhoVia(args->DIR_ENTRADA, args->nomeGeoFILE);
     } 
     else {
-        args->caminhoVIA = gerarCaminhoVia(args->DIR_ENTRADA, args->nomeGeoFILE);
+        args->caminhoVIA = NULL;
     }
 
     return args;

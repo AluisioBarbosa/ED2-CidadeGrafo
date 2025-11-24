@@ -70,7 +70,7 @@ Node getNode(Graph *g, char *nome);
 
 /*
  */
-InfoGrafo* getNodeInfo(Graph *g, Node *node);
+InfoGrafo* getNodeInfo(Graph *g, Node node);
 
 
 /*

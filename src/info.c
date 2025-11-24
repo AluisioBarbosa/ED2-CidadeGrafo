@@ -93,7 +93,3 @@ void setArestaAtiva(void* i, bool status) {
     }
 }
 
-bool quadra_is_ativa(void* i) {
-    InfoAresta* ia = (InfoAresta*) i;
-    return ia->ativo;
-}

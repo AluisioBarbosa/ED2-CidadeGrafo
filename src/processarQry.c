@@ -29,7 +29,6 @@ static int pontoInterno(double x, double y, double rx, double ry, double rw, dou
     return 0;
 }
 
-// Agora recebe HashTable* (ponteiro)
 static int resolverEndereco(HashTable* tQuadras, char* cep, char* face, double num, double* x, double* y) {
     Quadra* q = (Quadra*) buscarHashTable(tQuadras, cep);
     
@@ -71,7 +70,7 @@ static int encontrarNoMaisProximo(Graph* vias, double px, double py) {
 
     for (int i = 0; i < maxV; i++) {
         int idNode = i;
-        InfoVertice* info = (InfoVertice*) getNodeInfo(vias, &idNode);
+        InfoVertice* info = (InfoVertice*) getNodeInfo(vias, idNode);
         
         if (info != NULL) {
             double vx = getXVertice(info);
@@ -152,8 +151,8 @@ static void cmd_blq(Graph* vias, HashTable* idBloqueios, char* nome, double x, d
         Edge* e = (Edge*) removerInicio(listaTotal);
         int u = getFromNode(vias, e);
         int v = getToNode(vias, e);
-        InfoVertice* iU = (InfoVertice*) getNodeInfo(vias, &u);
-        InfoVertice* iV = (InfoVertice*) getNodeInfo(vias, &v);
+        InfoVertice* iU = (InfoVertice*) getNodeInfo(vias, u);
+        InfoVertice* iV = (InfoVertice*) getNodeInfo(vias, v);
 
         if (iU && iV) {
             double ux = getXVertice(iU); double uy = getYVertice(iU);
@@ -199,34 +198,40 @@ static void cmd_catac(STreap* arvore, Graph* vias, HashTable* idQuadras,
                       double x, double y, double w, double h, FILE* txt, SvgFile* svg) {
     
     fprintf(txt, "catac: Regiao (%.1f, %.1f, %.1f, %.1f)\n", x, y, w, h);
-    if (svg) svg_desenhar_regiao_catac(svg, x, y, w, h, "#AB37C8", "#AA0044", 0.5);
+    
+    if (svg) {
+        svg_desenhar_regiao_catac(svg, x, y, w, h, "#AB37C8", "#AA0044", 0.5);
+    }
 
-    Lista* listaNos = criaLista();
-    getStreapNodeRegiaoSTrp(arvore, x, y, w, h, listaNos);
-    while(!listaVazia(listaNos)) {
-        void* no = removerInicio(listaNos);
-        Quadra* q = (Quadra*) *getInfoSTrp(arvore, no);
-        
-        if (q && quadra_is_ativa(q)) {
-            if (retanguloDentroRetangulo(quadra_get_x(q), quadra_get_y(q), 
-                                         quadra_get_largura(q), quadra_get_altura(q), x, y, w, h)) {
-                fprintf(txt, " - Quadra removida: %s\n", quadra_get_cep(q));
-                deleteStreapNodeSTrp(arvore, no);
+    if (arvore && vias) {
+        Lista* listaNos = criaLista();
+        getStreapNodeRegiaoSTrp(arvore, x, y, w, h, listaNos);
+        while(!listaVazia(listaNos)) {
+            void* no = removerInicio(listaNos);
+            Quadra* q = (Quadra*) *getInfoSTrp(arvore, no);
+            
+            if (q && quadra_is_ativa(q)) {
+                if (retanguloDentroRetangulo(quadra_get_x(q), quadra_get_y(q), 
+                                             quadra_get_largura(q), quadra_get_altura(q), x, y, w, h)) {
+                    fprintf(txt, " - Quadra removida: %s\n", quadra_get_cep(q));
+                    quadra_set_ativa(q, false); // Fundamental para o SVG não desenhar depois
+                    deleteStreapNodeSTrp(arvore, no);
+                }
             }
         }
-    }
-    liberaLista(listaNos);
+        liberaLista(listaNos);
 
-    int maxV = getMaxNodes(vias);
-    for(int i=0; i<maxV; i++) {
-        int id = i;
-        InfoVertice* iv = (InfoVertice*) getNodeInfo(vias, &id);
-        if (iv) {
-            if (pontoInterno(getXVertice(iv), getYVertice(iv), x, y, w, h)) {
-                fprintf(txt, " - Vertice removido: %s\n", getIdVertice(iv));
-                removeNodeAndEdges(vias, id);
-                destroiInfoVertice(iv);
-                setNodeInfo(vias, id, NULL);
+        int maxV = getMaxNodes(vias);
+        for(int i=0; i<maxV; i++) {
+            int id = i;
+            InfoVertice* iv = (InfoVertice*) getNodeInfo(vias, id);
+            if (iv) {
+                if (pontoInterno(getXVertice(iv), getYVertice(iv), x, y, w, h)) {
+                    fprintf(txt, " - Vertice removido: %s\n", getIdVertice(iv));
+                    removeNodeAndEdges(vias, id);
+                    destroiInfoVertice(iv);
+                    setNodeInfo(vias, id, NULL);
+                }
             }
         }
     }
@@ -236,7 +241,7 @@ static void cmd_path(Graph* vias, HashTable* idQuadras,
                      char* cepD, char* faceD, double numD,             
                      char* cor1, char* cor2, FILE* txt, SvgFile* svg) {
 
-    static int pathCounter = 0; // Contador estático para gerar IDs unicos
+    static int pathCounter = 0; 
     pathCounter++;
 
     char idDist[32], idTempo[32];
@@ -300,7 +305,7 @@ static void cmd_path(Graph* vias, HashTable* idQuadras,
 
 
 void processarQry(char* pathQry, char* dirSaida, char* nomeBaseGeo, char* nomeBaseQry,
-                         HashTable* idQuadras, Graph* vias, HashTable* idBloqueios, STreap* arvoreQuadras, HashTable* idVertices) {
+                  HashTable* idQuadras, Graph* vias, HashTable* idBloqueios, STreap* arvoreQuadras, HashTable* idVertices) {
     
     if (!pathQry) return;
 
@@ -316,12 +321,31 @@ void processarQry(char* pathQry, char* dirSaida, char* nomeBaseGeo, char* nomeBa
     FILE* ftxt = fopen(pathTxt, "w");
     if (!fqry) return;
 
-    SvgFile* svg = svg_criar(dirSaida, nomeBaseGeo, nomeBaseQry, arvoreQuadras, vias);
-    if (svg) svg_desenhar_quadras(svg, arvoreQuadras);
-
     char cmd[10];
     char s1[256], s2[256], s3[256], s4[256], s5[256], s6[256];
     double d1, d2, d3, d4;
+
+
+    
+    while (fscanf(fqry, "%s", cmd) != EOF) {
+        if (strcmp(cmd, "catac") == 0) {
+            fscanf(fqry, "%lf %lf %lf %lf", &d1, &d2, &d3, &d4);
+            cmd_catac(arvoreQuadras, vias, idQuadras, d1, d2, d3, d4, ftxt, NULL);
+        } 
+        else {
+            if (strcmp(cmd, "pnt") == 0) fscanf(fqry, "%*s %*s %*s");
+            else if (strcmp(cmd, "@o?") == 0) fscanf(fqry, "%*s %*s %*lf");
+            else if (strcmp(cmd, "blq") == 0) fscanf(fqry, "%*s %*s %*lf %*lf %*lf %*lf");
+            else if (strcmp(cmd, "rbl") == 0) fscanf(fqry, "%*s");
+            else if (strcmp(cmd, "p?") == 0) fscanf(fqry, "%*s %*s %*lf %*s %*s");
+        }
+    }
+
+    SvgFile* svg = svg_criar(dirSaida, nomeBaseGeo, nomeBaseQry, arvoreQuadras, vias);
+    if (svg) svg_desenhar_quadras(svg, arvoreQuadras);
+
+
+    rewind(fqry);
 
     while (fscanf(fqry, "%s", cmd) != EOF) {
         
@@ -347,15 +371,13 @@ void processarQry(char* pathQry, char* dirSaida, char* nomeBaseGeo, char* nomeBa
         }
         else if (strcmp(cmd, "catac") == 0) {
             fscanf(fqry, "%lf %lf %lf %lf", &d1, &d2, &d3, &d4);
-            cmd_catac(arvoreQuadras, vias, idQuadras, d1, d2, d3, d4, ftxt, svg);
+            if (svg) {
+                svg_desenhar_regiao_catac(svg, d1, d2, d3, d4, "#AB37C8", "#AA0044", 0.5);
+            }
         }
     }
 
-    if (svg){
-     svg_finalizar(svg);
-    }
-    if (ftxt){
-        fclose(ftxt);
-    }
+    if (svg) svg_finalizar(svg);
+    if (ftxt) fclose(ftxt);
     fclose(fqry);
 }

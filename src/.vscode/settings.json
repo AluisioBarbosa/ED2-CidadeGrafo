@@ -6,7 +6,10 @@
         "hashtable.h": "c",
         "string.h": "c",
         "processargeo.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "svg.h": "c",
+        "quadra.h": "c",
+        "digraph.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

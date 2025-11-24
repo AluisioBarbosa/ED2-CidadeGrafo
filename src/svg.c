@@ -13,6 +13,8 @@ struct svgFile {
     FILE* f;
     double topoMapY;
 };
+
+//struct que funciona como a "visao", ela que usamos para "redimensionar" e fazer tudo caber na tela
 typedef struct {
     double minX, minY;
     double maxX, maxY;
@@ -22,7 +24,7 @@ typedef struct {
 static void callback_desenhar_quadra(void* info, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
     FILE* f = (FILE*) aux;
     Quadra* q = (Quadra*) info; 
-    if (q != NULL && f != NULL) {
+    if (q != NULL && f != NULL && quadra_is_ativa(q)) {
         fprintf(f, "\t<rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" "
                    "style=\"fill:%s;stroke:%s;stroke-width:%.2f\" opacity=\"0.9\" />\n",
                 quadra_get_x(q),
@@ -60,21 +62,19 @@ static void callback_limites_quadra(void* info, double x, double y, double mbbX1
 SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore, Graph* vias) {
     if (!diretorio || !nomeGeo) return NULL; 
 
-    // Calcula tamanho
     size_t len = strlen(diretorio) + strlen(nomeGeo) + 7;
-    if (nomeQry) len += strlen(nomeQry) + 1; // +1 do hifen
+    if (nomeQry) len += strlen(nomeQry) + 1;
 
     char* path = (char*) malloc(len);
     
-    // Monta caminho
     if (nomeQry && strlen(nomeQry) > 0) {
-        // Com QRY: dir/geo-qry.svg
+        // Com qry: dir/geo-qry.svg
         if (diretorio[strlen(diretorio) - 1] == '/')
             sprintf(path, "%s%s-%s.svg", diretorio, nomeGeo, nomeQry);
         else
             sprintf(path, "%s/%s-%s.svg", diretorio, nomeGeo, nomeQry);
     } else {
-        // Sem QRY: dir/geo.svg
+        // Sem qry: dir/geo.svg
         if (diretorio[strlen(diretorio) - 1] == '/')
             sprintf(path, "%s%s.svg", diretorio, nomeGeo);
         else
@@ -88,25 +88,21 @@ SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore
     SvgFile* svg = (SvgFile*) malloc(sizeof(SvgFile));
     svg->f = f;
 
-    // 2. CALCULA OS LIMITES (Bounding Box)
     BBox box;
     box.minX = DBL_MAX;
     box.minY = DBL_MAX;
     box.maxX = -DBL_MAX;
     box.maxY = -DBL_MAX;
 
-    // A. Percorre a Árvore de Quadras
     if (arvore) {
-        // Usa o percurso para visitar todas as quadras e expandir a box
         percursoSimetrico(arvore, callback_limites_quadra, &box);
     }
 
-    // B. Percorre os Vértices do Grafo (se houver pontos fora das quadras)
     if (vias) {
         int maxV = getMaxNodes(vias);
         for (int i = 0; i < maxV; i++) {
             int id = i;
-            void* info = getNodeInfo(vias, &id);
+            void* info = getNodeInfo(vias, id);
             if (info) {
                 double vx = getXVertice(info);
                 double vy = getYVertice(info);
@@ -118,12 +114,10 @@ SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore
         }
     }
 
-    // Validação: Se não achou nada (arquivo vazio), define padrão
     if (box.minX == DBL_MAX) {
         box.minX = 0; box.minY = 0; box.maxX = 1000; box.maxY = 1000;
     }
 
-    // 3. Adiciona uma margem (Padding) para não cortar as bordas
     double padding = 50.0;
     box.minX -= padding;
     box.minY -= padding;
@@ -134,8 +128,6 @@ SvgFile* svg_criar(char* diretorio, char* nomeGeo, char* nomeQry, STreap* arvore
     double width = box.maxX - box.minX;
     double height = box.maxY - box.minY;
 
-    // 4. Escreve o Cabeçalho com viewBox
-    // Isso garante que TUDO caiba na tela, não importa se é 100 ou 100000
     fprintf(f, "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"%.2f %.2f %.2f %.2f\">\n",
             box.minX, box.minY, width, height);
     
@@ -193,7 +185,7 @@ void svg_desenhar_caminho(SvgFile* svg, Graph* vias, Lista* listaNos, char* cor,
         int* ptrId = (int*) removerInicio(listaNos);
         int idNo = *ptrId;
 
-        void* infoV = getNodeInfo(vias, &idNo); 
+        void* infoV = getNodeInfo(vias, idNo); 
         
         if (infoV != NULL) {
             double x = getXVertice(infoV);
