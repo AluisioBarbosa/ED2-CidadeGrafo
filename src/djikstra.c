@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h> 
@@ -5,7 +7,6 @@
 #include "djikstra.h"
 #include "digraph.h"
 #include "lista.h"
-#define _POSIX_C_SOURCE 200809L
 
 
 struct caminho {

@@ -1,9 +1,9 @@
+#define _POSIX_C_SOURCE 200809L
 #include "info.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#define _POSIX_C_SOURCE 200809L
 
 
 struct infoVertice{

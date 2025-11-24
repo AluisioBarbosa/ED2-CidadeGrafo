@@ -1,6 +1,6 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include "programa.h"
-#define _POSIX_C_SOURCE 200809L
 
 
 int main(int argc, char* argv[]){

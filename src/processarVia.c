@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "processarVia.h"
 #include "digraph.h"
 #include "hashTable.h"
@@ -5,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _POSIX_C_SOURCE 200809L
 
 static int ehEspaco(char c) {
     return (c == ' ' || c == '\n' || c == '\r' || c == '\t');

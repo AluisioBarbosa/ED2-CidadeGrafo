@@ -1,8 +1,8 @@
+#define _POSIX_C_SOURCE 200809L
 #include "lista.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#define _POSIX_C_SOURCE 200809L
 
 typedef struct no {
     void* dados;

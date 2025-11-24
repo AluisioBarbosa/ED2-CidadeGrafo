@@ -1,9 +1,9 @@
+#define _POSIX_C_SOURCE 200809L
 #include "quadra.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#define _POSIX_C_SOURCE 200809L
 
 
 struct quadra{

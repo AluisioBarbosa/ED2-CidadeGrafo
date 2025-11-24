@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +13,6 @@
 #include "hashTable.h"
 #include "djikstra.h"
 #include "info.h" 
-#define _POSIX_C_SOURCE 200809L
 
 struct {
     double x;
